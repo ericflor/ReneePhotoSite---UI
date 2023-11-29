@@ -11,6 +11,7 @@ import { UserRegistrationDto } from '../../models/user-registration-dto.model';
 import { map, startWith } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-users',
@@ -28,7 +29,8 @@ export class UsersComponent implements OnInit {
   constructor(
     private userService: UserService,
     private fb: FormBuilder,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -102,45 +104,57 @@ export class UsersComponent implements OnInit {
 
   onLogin(): void {
     if (this.loginForm.valid) {
-      this.userService.authenticateUser(this.loginForm.value as LoginRequest).subscribe(
-        response => {
-          console.log(response);
-          localStorage.removeItem('accessToken');
-          this.snackBar.open("Login Successful!", "Close", {
-            duration: 3000,
-            horizontalPosition: 'center',
-            verticalPosition: 'top',
-          });
+      this.userService
+        .authenticateUser(this.loginForm.value as LoginRequest)
+        .subscribe(
+          (response) => {
+            console.log('Login response:', response); // For debugging
+            localStorage.removeItem('accessToken');
+            this.snackBar.open('Login Successful!', 'Close', {
+              duration: 3000,
+              horizontalPosition: 'center',
+              verticalPosition: 'top',
+            });
 
-          // Store the token
-          localStorage.setItem('accessToken', response.accessToken);
+            // Store the token
+            localStorage.setItem('accessToken', response.accessToken);
 
-          // Additional logic for navigating to another page/updating the UI
-        },
-        error => {
-          console.error(error);
-          this.snackBar.open(error.error, 'Close', {
-            duration: 3000,
-            horizontalPosition: 'center',
-            verticalPosition: 'top',
-          });
-        }
-      );
+            console.log('Navigating to user homepage'); // For debugging
+            // Navigate to User Homepage
+            this.router.navigate(['/user-homepage']);
+          },
+          (error) => {
+            console.error(error);
+            this.snackBar.open(error.error, 'Close', {
+              duration: 3000,
+              horizontalPosition: 'center',
+              verticalPosition: 'top',
+            });
+          }
+        );
     }
   }
 
   onRegister(): void {
     if (this.registrationForm.valid) {
-      this.userService.registerUser(this.registrationForm.value as UserRegistrationDto)
-        .subscribe(response => {
-          this.snackBar.open('Registration successful, please login', 'Close', {
-            duration: 3000,
-          });
-          this.toggleForm(); // Flip to login form
-        }, error => {
-          console.error(error);
-          this.snackBar.open(error.error, 'Close', { duration: 3000 });
-        });
+      this.userService
+        .registerUser(this.registrationForm.value as UserRegistrationDto)
+        .subscribe(
+          (response) => {
+            this.snackBar.open(
+              'Registration successful, please login',
+              'Close',
+              {
+                duration: 3000,
+              }
+            );
+            this.toggleForm(); // Flip to login form
+          },
+          (error) => {
+            console.error(error);
+            this.snackBar.open(error.error, 'Close', { duration: 3000 });
+          }
+        );
     }
   }
 }

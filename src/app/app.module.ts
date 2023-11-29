@@ -15,6 +15,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatIconModule } from '@angular/material/icon';
+import { UserHomepageComponent } from './components/user-homepage/user-homepage.component';
 
 
 @NgModule({
@@ -22,7 +23,8 @@ import { MatIconModule } from '@angular/material/icon';
     AppComponent,
     BlogsComponent,
     PhotosComponent,
-    UsersComponent
+    UsersComponent,
+    UserHomepageComponent
   ],
   imports: [
     BrowserModule,

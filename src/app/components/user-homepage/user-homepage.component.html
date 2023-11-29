@@ -1,0 +1,11 @@
+<div class="container">
+  <h1 class="title">YOUR PHOTOS</h1>
+  <div class="photo-grid">
+    <div class="photo-item" *ngFor="let photo of photos">
+      <img [src]="getPhotoUrl(photo)" alt="{{ photo.description }}">
+      <h3>{{ photo.title }}</h3>
+      <p>{{ photo.description }}</p>
+      <span>{{ photo.location }}</span>
+    </div>
+  </div>
+</div>

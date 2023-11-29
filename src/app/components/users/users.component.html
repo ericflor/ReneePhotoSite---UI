@@ -52,12 +52,9 @@
           <mat-form-field appearance="fill">
             <mat-label>Confirm Password</mat-label>
             <input matInput formControlName="confirmPassword" type="password">
-            <button mat-icon-button matSuffix (click)="hidePassword = !hidePassword">
-              <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
-            </button>
           </mat-form-field>
 
-          <button mat-raised-button color="accent" type="submit" [disabled]="!registrationForm.valid">Register</button>
+          <button mat-raised-button color="primary" type="submit" [disabled]="!registrationForm.valid">Register</button>
           <button mat-button (click)="toggleForm()">Login</button>
         </form>
       </mat-card-content>
