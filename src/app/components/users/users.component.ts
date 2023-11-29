@@ -23,6 +23,7 @@ export class UsersComponent implements OnInit {
   passwordStrength = 0;
   isPasswordValid = true;
   isLoginFormVisible = true;
+  hidePassword = true;
 
   constructor(
     private userService: UserService,
