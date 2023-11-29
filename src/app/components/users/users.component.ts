@@ -114,7 +114,7 @@ export class UsersComponent implements OnInit {
           // Store the token
           localStorage.setItem('accessToken', response.accessToken);
 
-          // Additional logic for navigating to another page/updating the UI added here
+          // Additional logic for navigating to another page/updating the UI
         },
         error => {
           console.error(error);
