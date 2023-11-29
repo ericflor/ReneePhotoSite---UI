@@ -45,4 +45,11 @@ export class PhotoService {
     return this.http.put<Photo[]>(`${this.apiUrl}/bulk/associate/user/${userId}`, photoIds);
   }
 
+  addPhotoForUser(userId: number, photo: Photo): Observable<Photo> {
+    return this.http.post<Photo>(`${this.apiUrl}/user/${userId}`, photo);
+  }
+
+  associatePhotoToUser(photoId: number, userId: number): Observable<Photo> {
+    return this.http.put<Photo>(`${this.apiUrl}/associate/${photoId}/user/${userId}`, {});
+  }
 }

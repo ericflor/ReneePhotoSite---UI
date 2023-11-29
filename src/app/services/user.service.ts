@@ -24,8 +24,8 @@ export class UserService {
     return this.http.post<JwtAuthenticationResponse>(`${this.apiUrl}/authenticate`, loginRequest);
   }
 
-  findUserByUsername(username: string): Observable<User> {
-    return this.http.get<User>(`${this.apiUrl}/find/${username}`);
+  findUserByUsername(username: string): Observable<string> {
+    return this.http.get<string>(`${this.apiUrl}/find/${username}`, { responseType: 'text' as 'json' });
   }
 
   getUserIdByUsername(username: string): Observable<string> {
