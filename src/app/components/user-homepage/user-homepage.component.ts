@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { PhotoService } from 'src/app/services/photo.service';
-import { Photo } from 'src/app/models/photo.model'; // Adjust the import path as necessary
+import { Photo } from 'src/app/models/photo.model';
 
 @Component({
   selector: 'app-user-homepage',
@@ -39,7 +39,7 @@ export class UserHomepageComponent implements OnInit {
     if (photo.photo && typeof photo.photo === 'string') {
       return `data:image/jpeg;base64,${photo.photo}`;
     }
-    return 'path/to/default/image.jpg'; // Replace with a default image path if necessary
+    return 'path/to/default/image.jpg'; // Replace with a default image path
   }
 
 }

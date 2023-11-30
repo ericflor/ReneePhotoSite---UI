@@ -43,8 +43,7 @@ mat-form-field {
   display: flex;
   justify-content: center;
   align-items: flex-start; /* Align items to the start of the container */
-  height: 100vh;
-  padding-top: 10vh;
+  margin-top: 10%;
 }
 
 .flip-container {
@@ -79,4 +78,16 @@ mat-form-field {
 
 .flip-container.flip .flip-card {
   transform: rotateY(180deg);
+}
+
+/* Style for the login and register buttons */
+.login-button, .register-button {
+  background-color: rgb(74, 146, 131); /* Sage color */
+  color: white; /* Adjust text color as needed */
+  border: none; /* Remove border if any */
+}
+
+/* Change color on hover */
+.login-button:hover, .register-button:hover {
+  background-color: rgb(64, 126, 113); /* Slightly darker shade for hover effect */
 }

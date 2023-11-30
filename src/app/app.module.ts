@@ -16,6 +16,8 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatIconModule } from '@angular/material/icon';
 import { UserHomepageComponent } from './components/user-homepage/user-homepage.component';
+import { NavbarComponent } from './components/navbar/navbar.component';
+import { AdminComponent } from './components/admin/admin.component';
 
 
 @NgModule({
@@ -24,7 +26,9 @@ import { UserHomepageComponent } from './components/user-homepage/user-homepage.
     BlogsComponent,
     PhotosComponent,
     UsersComponent,
-    UserHomepageComponent
+    UserHomepageComponent,
+    NavbarComponent,
+    AdminComponent
   ],
   imports: [
     BrowserModule,

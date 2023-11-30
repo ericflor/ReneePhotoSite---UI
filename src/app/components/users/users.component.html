@@ -18,7 +18,7 @@
             </button>
           </mat-form-field>
 
-          <button mat-raised-button color="primary" type="submit">Login</button>
+          <button mat-raised-button class="login-button" type="submit">Login</button>
           <button mat-button (click)="toggleForm()">Register</button>
         </form>
       </mat-card-content>
@@ -54,7 +54,7 @@
             <input matInput formControlName="confirmPassword" type="password">
           </mat-form-field>
 
-          <button mat-raised-button color="primary" type="submit" [disabled]="!registrationForm.valid">Register</button>
+          <button mat-raised-button class="login-button" type="submit" [disabled]="!registrationForm.valid">Register</button>
           <button mat-button (click)="toggleForm()">Login</button>
         </form>
       </mat-card-content>
