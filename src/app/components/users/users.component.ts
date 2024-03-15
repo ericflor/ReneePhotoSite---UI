@@ -6,10 +6,8 @@ import {
   FormBuilder,
 } from '@angular/forms';
 import { UserService } from 'src/app/services/user.service';
-import { LoginRequest } from '../../models/login-request.model';
-import { UserRegistrationDto } from '../../models/user-registration-dto.model';
+import { LoginRequest } from '../../models/loginRequest';
 import { map, startWith } from 'rxjs/operators';
-import { Observable } from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 
@@ -130,29 +128,6 @@ export class UsersComponent implements OnInit {
               horizontalPosition: 'center',
               verticalPosition: 'top',
             });
-          }
-        );
-    }
-  }
-
-  onRegister(): void {
-    if (this.registrationForm.valid) {
-      this.userService
-        .registerUser(this.registrationForm.value as UserRegistrationDto)
-        .subscribe(
-          (response) => {
-            this.snackBar.open(
-              'Registration successful, please login',
-              'Close',
-              {
-                duration: 3000,
-              }
-            );
-            this.toggleForm(); // Flip to login form
-          },
-          (error) => {
-            console.error(error);
-            this.snackBar.open(error.error, 'Close', { duration: 3000 });
           }
         );
     }

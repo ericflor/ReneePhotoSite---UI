@@ -4,8 +4,6 @@ import { BrowserModule } from '@angular/platform-browser';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { HttpClientModule } from '@angular/common/http';
-import { BlogsComponent } from './components/blogs/blogs.component';
-import { PhotosComponent } from './components/photos/photos.component';
 import { UsersComponent } from './components/users/users.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -23,8 +21,6 @@ import { AdminComponent } from './components/admin/admin.component';
 @NgModule({
   declarations: [
     AppComponent,
-    BlogsComponent,
-    PhotosComponent,
     UsersComponent,
     UserHomepageComponent,
     NavbarComponent,

@@ -19,43 +19,6 @@
           </mat-form-field>
 
           <button mat-raised-button class="login-button" type="submit">Login</button>
-          <button mat-button (click)="toggleForm()">Register</button>
-        </form>
-      </mat-card-content>
-    </div>
-
-    <!-- Registration Form -->
-    <div class="flip-card-back" *ngIf="!isLoginFormVisible">
-      <mat-card-title>Register</mat-card-title>
-      <mat-card-content>
-        <form [formGroup]="registrationForm" (ngSubmit)="onRegister()">
-          <mat-form-field appearance="fill">
-            <mat-label>Username</mat-label>
-            <input matInput formControlName="username">
-          </mat-form-field>
-
-          <mat-form-field appearance="fill">
-            <mat-label>Password</mat-label>
-            <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="password">
-            <button mat-icon-button matSuffix (click)="hidePassword = !hidePassword">
-              <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
-            </button>
-          </mat-form-field>
-
-          <div *ngIf="passwordStrength">
-            <mat-progress-bar mode="determinate"
-                    [value]="passwordStrength * 20"
-                    [ngClass]="getProgressBarClass()"></mat-progress-bar>
-            <p>Password Strength: {{ passwordStrength }}/5</p>
-          </div>
-
-          <mat-form-field appearance="fill">
-            <mat-label>Confirm Password</mat-label>
-            <input matInput formControlName="confirmPassword" type="password">
-          </mat-form-field>
-
-          <button mat-raised-button class="login-button" type="submit" [disabled]="!registrationForm.valid">Register</button>
-          <button mat-button (click)="toggleForm()">Login</button>
         </form>
       </mat-card-content>
     </div>
