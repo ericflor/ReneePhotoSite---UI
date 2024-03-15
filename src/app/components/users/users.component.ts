@@ -117,9 +117,9 @@ export class UsersComponent implements OnInit {
             // Store the token
             localStorage.setItem('accessToken', response.accessToken);
 
-            console.log('Navigating to user homepage'); // For debugging
+            console.log('Navigating to inventory'); // For debugging
             // Navigate to User Homepage
-            this.router.navigate(['/user-homepage']);
+            this.router.navigate(['/inventory']);
           },
           (error) => {
             console.error(error);

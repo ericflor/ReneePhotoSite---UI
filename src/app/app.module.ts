@@ -13,9 +13,14 @@ import { MatCardModule } from '@angular/material/card';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatIconModule } from '@angular/material/icon';
+import { MatTableModule } from '@angular/material/table';
 import { UserHomepageComponent } from './components/user-homepage/user-homepage.component';
 import { NavbarComponent } from './components/navbar/navbar.component';
 import { AdminComponent } from './components/admin/admin.component';
+import { InventoryComponent } from './components/inventory/inventory.component';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { OrdersComponent } from './components/orders/orders.component';
+import { AgencyComponent } from './components/agency/agency.component';
 
 
 @NgModule({
@@ -24,7 +29,10 @@ import { AdminComponent } from './components/admin/admin.component';
     UsersComponent,
     UserHomepageComponent,
     NavbarComponent,
-    AdminComponent
+    AdminComponent,
+    InventoryComponent,
+    OrdersComponent,
+    AgencyComponent
   ],
   imports: [
     BrowserModule,
@@ -37,7 +45,9 @@ import { AdminComponent } from './components/admin/admin.component';
     MatCardModule,
     MatProgressBarModule,
     MatSnackBarModule,
-    MatIconModule
+    MatIconModule,
+    MatPaginatorModule,
+    MatTableModule
   ],
   providers: [],
   bootstrap: [AppComponent]

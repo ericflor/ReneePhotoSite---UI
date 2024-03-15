@@ -1,0 +1,30 @@
+.table-container {
+  display: flex;
+  flex-direction: column; /* Ensures vertical stacking */
+  align-items: center; /* Centers children horizontally */
+  width: 100%;
+}
+
+.table-header {
+  text-align: center;
+  margin-bottom: 20px; /* Adjust spacing between the header and the table */
+}
+
+.mat-elevation-z8 {
+  width: 100%; /* Ensures the table container uses the full width */
+  overflow-x: auto; /* Keeps table scrollable horizontally */
+}
+
+table {
+  margin: 20px auto; /* Adds margin on top and centers the table horizontally */
+  width: 95%; /* Adjust based on your layout needs */
+}
+
+th.mat-header-cell, td.mat-cell {
+  padding-right: 24px; /* Adjusts spacing between columns, can be tweaked */
+}
+
+mat-paginator {
+  width: 100%; /* Ensures paginator uses the full width of its container */
+  padding: 20px; /* Adds some spacing around the paginator */
+}
