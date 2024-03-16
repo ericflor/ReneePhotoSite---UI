@@ -26,4 +26,14 @@ export class InventoryService {
   private getAuthToken(): string {
     return localStorage.getItem('accessToken') || '';
   }
+
+  addPhonesBatch(phones: any[]): Observable<any> {
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${this.getAuthToken()}`
+    });
+
+    return this.http.post(`${this.apiUrl}/batch`, phones, { headers });
+  }
+
 }

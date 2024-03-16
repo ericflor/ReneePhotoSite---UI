@@ -1,3 +1,44 @@
+<div class="inventory-page-container">
+  <h1 class="table-header">Add New Device</h1>
+  <form [formGroup]="addPhoneForm" (ngSubmit)="submitPhones()" class="inventory-form">
+    <div formArrayName="phones">
+      <div *ngFor="let phone of phonesFormArray.controls; let i = index" [formGroupName]="i" class="phone-input-group">
+
+        <mat-form-field appearance="fill" class="input-field">
+          <mat-label>IMEI</mat-label>
+          <input matInput formControlName="imei">
+        </mat-form-field>
+
+        <mat-form-field appearance="fill" class="input-field">
+          <mat-label>Type</mat-label>
+          <mat-select formControlName="type">
+            <mat-option value="SMARTPHONE">Smartphone</mat-option>
+            <mat-option value="FLIP">Flip Phone</mat-option>
+            <mat-option value="TABLET">Tablet</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="fill" class="input-field">
+          <mat-label>Model</mat-label>
+          <input matInput formControlName="model">
+        </mat-form-field>
+
+        <button mat-icon-button color="warn" (click)="removePhoneInput(i)" class="delete-button">
+          <mat-icon>delete</mat-icon>
+        </button>
+
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button mat-button (click)="addNewPhoneInput()">Add Another Phone</button>
+      <button mat-raised-button color="primary" type="submit">Add to Inventory</button>
+    </div>
+  </form>
+</div>
+
+
+
 <div class="table-container">
   <div class="mat-elevation-z8">
     <h1 class="table-header">Inventory</h1>

@@ -12,7 +12,9 @@
 
           <mat-form-field appearance="fill">
             <mat-label>Password</mat-label>
-            <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="password">
+            <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="password"
+              (keyup.enter)="onLogin()">
+
             <button mat-icon-button matSuffix (click)="hidePassword = !hidePassword">
               <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
             </button>

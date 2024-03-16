@@ -19,6 +19,7 @@ import { NavbarComponent } from './components/navbar/navbar.component';
 import { AdminComponent } from './components/admin/admin.component';
 import { InventoryComponent } from './components/inventory/inventory.component';
 import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatSelectModule } from '@angular/material/select';
 import { OrdersComponent } from './components/orders/orders.component';
 import { AgencyComponent } from './components/agency/agency.component';
 
@@ -47,6 +48,7 @@ import { AgencyComponent } from './components/agency/agency.component';
     MatSnackBarModule,
     MatIconModule,
     MatPaginatorModule,
+    MatSelectModule,
     MatTableModule
   ],
   providers: [],
