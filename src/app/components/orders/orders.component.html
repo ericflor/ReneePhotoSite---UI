@@ -3,96 +3,71 @@
     <h1 class="table-header">Orders</h1>
     <table mat-table [dataSource]="orders" class="mat-elevation-z8">
 
-      <!-- ID Column -->
-      <ng-container matColumnDef="id">
-        <th mat-header-cell *matHeaderCellDef> ID </th>
-        <td mat-cell *matCellDef="let order"> {{order.id}} </td>
+      <!-- Information Group -->
+      <ng-container matColumnDef="info">
+        <th mat-header-cell *matHeaderCellDef> Info </th>
+        <td mat-cell *matCellDef="let order">
+          <div><strong>Company:</strong> {{order.companyName}}</div>
+          <div><strong>Name of Recipient:</strong> {{order.nameOfRecipient}}</div>
+          <div><strong>Phone:</strong> {{order.phoneNumber}}</div>
+          <div><strong>Email:</strong> {{order.email}}</div>
+          <div><strong>Address:</strong> {{order.address}}</div>
+          <div><strong>City:</strong> {{order.city}}</div>
+          <div><strong>State:</strong> {{order.state}}</div>
+          <div><strong>Zip Code:</strong> {{order.zipCode}}</div>
+          <div><strong>Order Date:</strong> {{order.date | date:'mediumDate'}}</div>
+        </td>
       </ng-container>
 
-      <!-- Company Name Column -->
-      <ng-container matColumnDef="companyName">
-        <th mat-header-cell *matHeaderCellDef> Company Name </th>
-        <td mat-cell *matCellDef="let order"> {{order.companyName}} </td>
-      </ng-container>
-
-      <!-- Name of Recipient Column -->
-      <ng-container matColumnDef="nameOfRecipient">
-        <th mat-header-cell *matHeaderCellDef> Name of Recipient </th>
-        <td mat-cell *matCellDef="let order"> {{order.nameOfRecipient}} </td>
-      </ng-container>
-
-      <!-- Phone Number Column -->
-      <ng-container matColumnDef="phoneNumber">
-        <th mat-header-cell *matHeaderCellDef> Phone Number </th>
-        <td mat-cell *matCellDef="let order"> {{order.phoneNumber}} </td>
-      </ng-container>
-
-      <!-- Email Column -->
-      <ng-container matColumnDef="email">
-        <th mat-header-cell *matHeaderCellDef> Email </th>
-        <td mat-cell *matCellDef="let order"> {{order.email}} </td>
-      </ng-container>
-
-      <!-- Address Column -->
-      <ng-container matColumnDef="address">
-        <th mat-header-cell *matHeaderCellDef> Address </th>
-        <td mat-cell *matCellDef="let order"> {{order.address}} </td>
-      </ng-container>
-
-      <!-- City Column -->
-      <ng-container matColumnDef="city">
-        <th mat-header-cell *matHeaderCellDef> City </th>
-        <td mat-cell *matCellDef="let order"> {{order.city}} </td>
-      </ng-container>
-
-      <!-- State Column -->
-      <ng-container matColumnDef="state">
-        <th mat-header-cell *matHeaderCellDef> State </th>
-        <td mat-cell *matCellDef="let order"> {{order.state}} </td>
-      </ng-container>
-
-      <!-- Zip Code Column -->
-      <ng-container matColumnDef="zipCode">
-        <th mat-header-cell *matHeaderCellDef> Zip Code </th>
-        <td mat-cell *matCellDef="let order"> {{order.zipCode}} </td>
-      </ng-container>
-
-      <!-- Name ETC Column -->
-      <ng-container matColumnDef="nameETC">
-        <th mat-header-cell *matHeaderCellDef> Name ETC </th>
+      <!-- ETC Name -->
+      <ng-container matColumnDef="etcName">
+        <th mat-header-cell *matHeaderCellDef> ETC Name </th>
         <td mat-cell *matCellDef="let order"> {{order.nameETC}} </td>
       </ng-container>
 
-      <!-- Quantity Column -->
+      <!-- Ordered Quantity -->
       <ng-container matColumnDef="quantity">
-        <th mat-header-cell *matHeaderCellDef> Quantity </th>
+        <th mat-header-cell *matHeaderCellDef> Ordered Quantity </th>
         <td mat-cell *matCellDef="let order"> {{order.quantity}} </td>
       </ng-container>
 
-      <!-- Notes Column -->
-      <ng-container matColumnDef="notes">
-        <th mat-header-cell *matHeaderCellDef> Notes </th>
-        <td mat-cell *matCellDef="let order"> {{order.notes}} </td>
-      </ng-container>
-
-      <!-- Tracking Number Column -->
-      <ng-container matColumnDef="trackingNumber">
-        <th mat-header-cell *matHeaderCellDef> Tracking Number </th>
-        <td mat-cell *matCellDef="let order"> {{order.trackingNumber}} </td>
-      </ng-container>
-
-      <!-- Status Column -->
+      <!-- Status -->
       <ng-container matColumnDef="status">
         <th mat-header-cell *matHeaderCellDef> Status </th>
         <td mat-cell *matCellDef="let order"> {{order.status}} </td>
       </ng-container>
 
-      <!-- Header and Row Declarations -->
+      <!-- Notes -->
+      <ng-container matColumnDef="note">
+        <th mat-header-cell *matHeaderCellDef> Note </th>
+        <td mat-cell *matCellDef="let order"> {{order.notes}} </td>
+      </ng-container>
+
+      <!-- Actions -->
+      <ng-container matColumnDef="action">
+        <th mat-header-cell *matHeaderCellDef> Action </th>
+        <td mat-cell *matCellDef="let order">
+          <button mat-button color="primary" (click)="editOrder(order)" *ngIf="order.status !== 'SHIPPED'">Edit</button>
+          <div *ngIf="order.status === 'SHIPPED'">
+            <input matInput placeholder="Tracking Number" [(ngModel)]="order.trackingNumber"
+              (blur)="updateTrackingNumber(order)" />
+          </div>
+          <button mat-button color="accent" (click)="approveOrder(order)"
+            *ngIf="order.status !== 'APPROVED' && order.status !== 'SHIPPED'">Approve</button>
+          <button mat-button color="warn" (click)="denyOrder(order)"
+            *ngIf="order.status === 'APPROVED' || order.status === 'NEW'">Deny</button>
+        </td>
+      </ng-container>
+
+
+      <!-- Table Headers and Rows -->
       <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
       <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-
     </table>
+
+    <!-- Paginator -->
+    <mat-paginator [length]="totalElements" [pageSize]="pageSize" [pageSizeOptions]="[5, 10, 20]"
+      (page)="changePage($event)">
+    </mat-paginator>
   </div>
-  <mat-paginator [length]="totalElements" [pageSize]="pageSize" [pageSizeOptions]="[5, 10, 20]" (page)="changePage($event)">
-  </mat-paginator>
 </div>

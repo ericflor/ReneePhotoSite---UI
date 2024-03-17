@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { Phone } from '../models/phone';
 
 @Injectable({
   providedIn: 'root'
@@ -36,4 +37,12 @@ export class InventoryService {
     return this.http.post(`${this.apiUrl}/batch`, phones, { headers });
   }
 
+  updatePhone(imei: string, phoneDetails: Phone): Observable<Phone> {
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${this.getAuthToken()}`
+    });
+    console.log("PHONE DETAILS: " + phoneDetails.employee);
+    return this.http.patch<Phone>(`${this.apiUrl}/${imei}`, phoneDetails, { headers });
+  }
 }

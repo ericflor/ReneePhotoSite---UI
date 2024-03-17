@@ -39,6 +39,58 @@
 
 
 
+<div class="inventory-page-container">
+  <h1 class="table-header">Inventory Re-Assign</h1>
+  <form [formGroup]="reAssignForm" (ngSubmit)="submitReAssign()" class="inventory-form">
+    <!-- IMEI Field for Re-Assign Form -->
+    <div class="phone-input-group">
+      <mat-form-field appearance="fill" class="input-field">
+        <mat-label>IMEI</mat-label>
+        <input matInput formControlName="imei" placeholder="Enter IMEI to re-assign">
+      </mat-form-field>
+    </div>
+
+    <div class="phone-input-group">
+      <!-- Master Agent Field -->
+      <mat-form-field appearance="fill" class="input-field">
+        <mat-label>Master Agent</mat-label>
+        <input matInput formControlName="masterAgent">
+      </mat-form-field>
+
+      <!-- Distributor Field -->
+      <mat-form-field appearance="fill" class="input-field">
+        <mat-label>Distributor</mat-label>
+        <input matInput formControlName="distributor">
+      </mat-form-field>
+    </div>
+
+    <div class="phone-input-group">
+      <!-- Retailer Field -->
+      <mat-form-field appearance="fill" class="input-field">
+        <mat-label>Retailer</mat-label>
+        <input matInput formControlName="retailer">
+      </mat-form-field>
+
+      <!-- Employee Field -->
+      <div formGroupName="employee">
+        <mat-form-field appearance="fill" class="input-field">
+          <mat-label>Agency ID</mat-label>
+          <input matInput formControlName="id" placeholder="Agency ID">
+        </mat-form-field>
+      </div>
+
+
+    </div>
+
+    <div class="form-actions">
+      <button mat-raised-button color="primary" type="submit">Update Inventory</button>
+    </div>
+  </form>
+</div>
+
+
+
+
 <div class="table-container">
   <div class="mat-elevation-z8">
     <h1 class="table-header">Inventory</h1>

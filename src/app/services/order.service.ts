@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Order } from '../models/order'; // Adjust the path as necessary
+import { Order } from '../models/order';
 
 @Injectable({
   providedIn: 'root'
 })
+
 export class OrderService {
   private apiUrl = 'http://localhost:8080/orders';
 
@@ -25,5 +26,14 @@ export class OrderService {
 
   private getAuthToken(): string {
     return localStorage.getItem('accessToken') || '';
+  }
+
+  updateOrder(id: number, orderDetails: Partial<Order>): Observable<Order> {
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${this.getAuthToken()}`,
+      'Content-Type': 'application/json'
+    });
+
+    return this.http.patch<Order>(`${this.apiUrl}/${id}`, orderDetails, { headers });
   }
 }
