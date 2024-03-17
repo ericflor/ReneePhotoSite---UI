@@ -8,7 +8,7 @@ import {
 import { UserService } from 'src/app/services/user.service';
 import { LoginRequest } from '../../models/loginRequest';
 import { map, startWith } from 'rxjs/operators';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { Router } from '@angular/router';
 
 @Component({
