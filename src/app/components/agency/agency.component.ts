@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { AgencyService } from 'src/app/services/agency.service';
-import { MatLegacyPaginator as MatPaginator, LegacyPageEvent as PageEvent } from '@angular/material/legacy-paginator';
+import { MatPaginator as MatPaginator, PageEvent as PageEvent } from '@angular/material/paginator';
 
 @Component({
   selector: 'app-agency',

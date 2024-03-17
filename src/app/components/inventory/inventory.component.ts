@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild, ChangeDetectorRef } from '@angular/core';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { MatSnackBar as MatSnackBar } from '@angular/material/snack-bar';
 import { InventoryService } from 'src/app/services/inventory.service';
-import { MatLegacyPaginator as MatPaginator, LegacyPageEvent as PageEvent } from '@angular/material/legacy-paginator';
+import { MatPaginator as MatPaginator, PageEvent as PageEvent } from '@angular/material/paginator';
 import { Phone } from 'src/app/models/phone';
 import { FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
 
