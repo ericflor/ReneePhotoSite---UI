@@ -80,10 +80,13 @@
         </mat-select>
       </mat-form-field>
 
+      <!-- Employee Select -->
       <div formGroupName="employee">
         <mat-form-field appearance="fill" class="input-field">
-          <mat-label>Agency ID</mat-label>
-          <input matInput formControlName="id" placeholder="Agency ID">
+          <mat-label>Employee</mat-label>
+          <mat-select formControlName="id">
+            <mat-option *ngFor="let employee of employeesList" [value]="employee.id">{{ employee.name }}</mat-option>
+          </mat-select>
         </mat-form-field>
       </div>
     </div>

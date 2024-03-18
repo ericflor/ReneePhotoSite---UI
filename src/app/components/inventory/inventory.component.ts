@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { MatSnackBar as MatSnackBar } from '@angular/material/snack-bar';
 import { InventoryService } from 'src/app/services/inventory.service';
+import { AgencyService } from 'src/app/services/agency.service';
 import {
   MatPaginator as MatPaginator,
   PageEvent as PageEvent,
@@ -14,6 +15,7 @@ import { Agency } from 'src/app/models/agency';
   templateUrl: './inventory.component.html',
   styleUrls: ['./inventory.component.css'],
 })
+
 export class InventoryComponent implements OnInit {
   phones: Phone[] = [];
   imeiList: string[] = [];
@@ -46,6 +48,7 @@ export class InventoryComponent implements OnInit {
 
   constructor(
     private inventoryService: InventoryService,
+    private agencyService: AgencyService,
     private fb: FormBuilder,
     private snackBar: MatSnackBar
   ) {
@@ -130,24 +133,37 @@ export class InventoryComponent implements OnInit {
           ),
         ] as string[];
 
-        // Clear previous employee list to avoid duplicates on reload
-      const uniqueEmployees = new Map<number, Agency>();
+      // Now fetch all agencies for the employees list
+      this.fetchAllAgencies();
 
-      // Iterate over phones to populate unique employee details
-      this.phones.forEach((phone: Phone) => {
-        if (phone.employee && !uniqueEmployees.has(phone.employee.id!)) {
-          uniqueEmployees.set(phone.employee.id!, phone.employee);
-        }
-      });
+      this.showTable = true;
 
-      this.employeesList = Array.from(uniqueEmployees.values());
-
-      console.log('EMPLOYEES LIST:', this.employeesList);
-
-        this.showTable = true;
       },
       (error) => {
         console.error('Error fetching inventory:', error);
+      }
+    );
+  }
+
+  fetchAllAgencies(): void {
+    this.agencyService.getAllAgencies().subscribe(
+      (response) => {
+        // Assuming your API returns a list of agencies in the format similar to `data.content`
+        const agencies = response.content;
+
+        // Map over agencies to create a unique list based on ID
+        const uniqueAgencies = new Map<number, Agency>();
+        agencies.forEach((agency: Agency) => {
+          if (agency && !uniqueAgencies.has(agency.id!)) {
+            uniqueAgencies.set(agency.id!, agency);
+          }
+        });
+
+        this.employeesList = Array.from(uniqueAgencies.values());
+        console.log('AGENCIES LIST:', this.employeesList);
+      },
+      (error) => {
+        console.error('Error fetching agencies:', error);
       }
     );
   }
@@ -191,7 +207,7 @@ export class InventoryComponent implements OnInit {
   submitReAssign(): void {
     if (this.reAssignForm.valid) {
       const updatedValues = this.reAssignForm.value;
-
+      console.log("UPDATED VALUES: " + updatedValues.imei)
       this.inventoryService
         .updatePhone(updatedValues.imei, updatedValues)
         .subscribe({
@@ -227,5 +243,4 @@ export class InventoryComponent implements OnInit {
       });
     }
   }
-
 }
