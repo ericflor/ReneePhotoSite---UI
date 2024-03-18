@@ -1,0 +1,27 @@
+/* edit-order-form.component.css */
+.form-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.edit-order-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.form-field {
+  flex: 1 1 40%; /* Adjust the percentage to control the width of the fields */
+  margin-bottom: 20px; /* Spacing between rows */
+}
+
+@media (max-width: 600px) {
+  .form-field {
+    flex: 1 1 100%; /* Full width on smaller screens */
+  }
+}

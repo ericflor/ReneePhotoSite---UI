@@ -1,6 +1,34 @@
 <div class="table-container">
   <div class="mat-elevation-z8">
     <h1 class="table-header">Orders</h1>
+
+    <div class="create-order-action">
+      <button mat-raised-button color="accent" (click)="createOrder()">Create Order</button>
+    </div>
+
+
+    <div class="filter-container">
+      <mat-form-field appearance="fill" class="search-field">
+        <mat-label>Search Orders</mat-label>
+        <input matInput (input)="applyFilter($event)">
+      </mat-form-field>
+
+      <mat-form-field appearance="fill" class="status-field">
+        <mat-label>Status</mat-label>
+        <mat-select (selectionChange)="filterStatus($event.value)">
+          <mat-option *ngFor="let status of statusOptions" [value]="status">
+            {{ status }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+      <div class="filter-actions">
+        <button mat-raised-button color="primary" (click)="clearFilters()">Clear Filters</button>
+      </div>
+
+    </div>
+
+
+
     <table mat-table [dataSource]="orders" class="mat-elevation-z8">
 
       <!-- Information Group -->
@@ -31,10 +59,18 @@
         <td mat-cell *matCellDef="let order"> {{order.quantity}} </td>
       </ng-container>
 
-      <!-- Status -->
+      <!-- Status And Tracking Number -->
       <ng-container matColumnDef="status">
-        <th mat-header-cell *matHeaderCellDef> Status </th>
-        <td mat-cell *matCellDef="let order"> {{order.status}} </td>
+        <th mat-header-cell *matHeaderCellDef> Status / Tracking Number </th>
+        <td mat-cell *matCellDef="let order">
+          {{order.status}}
+          <div *ngIf="order.status === 'SHIPPED'">
+            <br>
+            <strong>Tracking Number:</strong>
+            <input id="trackingNumber" matInput placeholder="Tracking Number" [(ngModel)]="order.trackingNumber"
+              (blur)="updateTrackingNumber(order)" />
+          </div>
+        </td>
       </ng-container>
 
       <!-- Notes -->
@@ -47,15 +83,11 @@
       <ng-container matColumnDef="action">
         <th mat-header-cell *matHeaderCellDef> Action </th>
         <td mat-cell *matCellDef="let order">
-          <button mat-button color="primary" (click)="editOrder(order)" *ngIf="order.status !== 'SHIPPED'">Edit</button>
-          <div *ngIf="order.status === 'SHIPPED'">
-            <input matInput placeholder="Tracking Number" [(ngModel)]="order.trackingNumber"
-              (blur)="updateTrackingNumber(order)" />
-          </div>
-          <button mat-button color="accent" (click)="approveOrder(order)"
-            *ngIf="order.status !== 'APPROVED' && order.status !== 'SHIPPED'">Approve</button>
-          <button mat-button color="warn" (click)="denyOrder(order)"
-            *ngIf="order.status === 'APPROVED' || order.status === 'NEW'">Deny</button>
+          <button mat-button color="primary" (click)="editOrder(order)">Edit</button>
+          <button mat-button color="accent" *ngIf="order.status !== 'APPROVED' && order.status !== 'SHIPPED'"
+            (click)="approveOrder(order)">Approve</button>
+          <button mat-button color="warn" *ngIf="order.status === 'APPROVED' || order.status === 'NEW'"
+            (click)="denyOrder(order)">Deny</button>
         </td>
       </ng-container>
 

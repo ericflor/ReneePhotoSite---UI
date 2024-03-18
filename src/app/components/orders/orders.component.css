@@ -28,3 +28,15 @@ mat-paginator {
   width: 100%; /* Ensures paginator uses the full width of its container */
   padding: 20px; /* Adds some spacing around the paginator */
 }
+
+.filter-container {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.search-field,
+.status-field {
+  width: 100%;
+}
+

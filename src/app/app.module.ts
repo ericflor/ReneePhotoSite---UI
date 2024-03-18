@@ -22,6 +22,8 @@ import { MatSelectModule as MatSelectModule } from '@angular/material/select';
 import { OrdersComponent } from './components/orders/orders.component';
 import { AgencyComponent } from './components/agency/agency.component';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { EditOrderFormComponent } from './components/edit-order-form/edit-order-form.component';
+import { MatDialogModule } from '@angular/material/dialog';
 
 
 @NgModule({
@@ -33,7 +35,8 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
     AdminComponent,
     InventoryComponent,
     OrdersComponent,
-    AgencyComponent
+    AgencyComponent,
+    EditOrderFormComponent
   ],
   imports: [
     BrowserModule,
@@ -50,7 +53,8 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
     MatIconModule,
     MatPaginatorModule,
     MatSelectModule,
-    MatTableModule
+    MatTableModule,
+    MatDialogModule
   ],
   providers: [],
   bootstrap: [AppComponent]

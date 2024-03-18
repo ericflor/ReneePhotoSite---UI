@@ -28,6 +28,17 @@ export class OrderService {
     return localStorage.getItem('accessToken') || '';
   }
 
+
+  addOrder(order: Order): Observable<Order> {
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${this.getAuthToken()}`,
+      'Content-Type': 'application/json'
+    });
+
+    return this.http.post<Order>(this.apiUrl, order, { headers });
+  }
+
+
   updateOrder(id: number, orderDetails: Partial<Order>): Observable<Order> {
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${this.getAuthToken()}`,
