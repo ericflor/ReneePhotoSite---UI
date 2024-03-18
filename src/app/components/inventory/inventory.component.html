@@ -9,13 +9,15 @@
           <input matInput formControlName="imei">
         </mat-form-field>
 
+
         <mat-form-field appearance="fill" class="input-field">
           <mat-label>Type</mat-label>
-          <mat-select formControlName="type">
+          <input matInput formControlName="type">
+          <!-- <mat-select formControlName="type">
             <mat-option value="SMARTPHONE">Smartphone</mat-option>
             <mat-option value="FLIP">Flip Phone</mat-option>
             <mat-option value="TABLET">Tablet</mat-option>
-          </mat-select>
+          </mat-select> -->
         </mat-form-field>
 
         <mat-form-field appearance="fill" class="input-field">
@@ -42,50 +44,55 @@
 <div class="inventory-page-container">
   <h1 class="table-header">Inventory Re-Assign</h1>
   <form [formGroup]="reAssignForm" (ngSubmit)="submitReAssign()" class="inventory-form">
-    <!-- IMEI Field for Re-Assign Form -->
-    <div class="phone-input-group">
-      <mat-form-field appearance="fill" class="input-field">
-        <mat-label>IMEI</mat-label>
-        <input matInput formControlName="imei" placeholder="Enter IMEI to re-assign">
-      </mat-form-field>
-    </div>
+
+    <!-- IMEI Select -->
+    <mat-form-field appearance="fill" class="input-field">
+      <mat-label>IMEI</mat-label>
+      <mat-select formControlName="imei">
+        <mat-option *ngFor="let imei of imeiList" [value]="imei">{{ imei }}</mat-option>
+      </mat-select>
+    </mat-form-field>
 
     <div class="phone-input-group">
-      <!-- Master Agent Field -->
+      <!-- Master Agent Select -->
       <mat-form-field appearance="fill" class="input-field">
         <mat-label>Master Agent</mat-label>
-        <input matInput formControlName="masterAgent">
+        <mat-select formControlName="masterAgent">
+          <mat-option *ngFor="let agent of agentList" [value]="agent">{{ agent }}</mat-option>
+        </mat-select>
       </mat-form-field>
 
-      <!-- Distributor Field -->
+      <!-- Distributor Select -->
       <mat-form-field appearance="fill" class="input-field">
         <mat-label>Distributor</mat-label>
-        <input matInput formControlName="distributor">
+        <mat-select formControlName="distributor">
+          <mat-option *ngFor="let distributor of distributorList" [value]="distributor">{{ distributor }}</mat-option>
+        </mat-select>
       </mat-form-field>
     </div>
 
     <div class="phone-input-group">
-      <!-- Retailer Field -->
+      <!-- Retailer Select -->
       <mat-form-field appearance="fill" class="input-field">
         <mat-label>Retailer</mat-label>
-        <input matInput formControlName="retailer">
+        <mat-select formControlName="retailer">
+          <mat-option *ngFor="let retailer of retailerList" [value]="retailer">{{ retailer }}</mat-option>
+        </mat-select>
       </mat-form-field>
 
-      <!-- Employee Field -->
       <div formGroupName="employee">
         <mat-form-field appearance="fill" class="input-field">
           <mat-label>Agency ID</mat-label>
           <input matInput formControlName="id" placeholder="Agency ID">
         </mat-form-field>
       </div>
-
-
     </div>
 
     <div class="form-actions">
       <button mat-raised-button color="primary" type="submit">Update Inventory</button>
     </div>
   </form>
+
 </div>
 
 
@@ -148,6 +155,17 @@
         <th mat-header-cell *matHeaderCellDef> Employee </th>
         <td mat-cell *matCellDef="let element"> {{element.employee?.username}} </td>
       </ng-container>
+
+      <!-- Delete -->
+      <ng-container matColumnDef="delete">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let element">
+          <button mat-icon-button (click)="deletePhone(element.imei)">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+
 
       <!-- Header and Row Declarations -->
       <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>

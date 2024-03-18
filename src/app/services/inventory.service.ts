@@ -24,10 +24,6 @@ export class InventoryService {
     return this.http.get(this.apiUrl, { headers, params });
   }
 
-  private getAuthToken(): string {
-    return localStorage.getItem('accessToken') || '';
-  }
-
   addPhonesBatch(phones: any[]): Observable<any> {
     const headers = new HttpHeaders({
       'Content-Type': 'application/json',
@@ -44,5 +40,18 @@ export class InventoryService {
     });
     console.log("PHONE DETAILS: " + phoneDetails.employee);
     return this.http.patch<Phone>(`${this.apiUrl}/${imei}`, phoneDetails, { headers });
+  }
+
+  deletePhone(imei: string): Observable<any> {
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${this.getAuthToken()}`,
+      'Content-Type': 'application/json'
+    });
+
+    return this.http.delete(`${this.apiUrl}/${imei}`, { headers });
+  }
+
+  private getAuthToken(): string {
+    return localStorage.getItem('accessToken') || '';
   }
 }

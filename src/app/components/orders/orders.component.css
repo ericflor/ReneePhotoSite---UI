@@ -7,8 +7,10 @@
 
 .table-header {
   text-align: center;
+  margin-top: 20px;
   margin-bottom: 20px; /* Adjust spacing between the header and the table */
 }
+
 
 .mat-elevation-z8 {
   width: 100%; /* Ensures the table container uses the full width */
@@ -31,8 +33,12 @@ mat-paginator {
 
 .filter-container {
   display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 50%;
   gap: 20px;
   margin-bottom: 20px;
+  margin-left: 25%;
 }
 
 .search-field,
@@ -40,3 +46,10 @@ mat-paginator {
   width: 100%;
 }
 
+.create-order-action{
+  margin-bottom: 3%;
+  margin-top: 1%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

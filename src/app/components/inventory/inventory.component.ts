@@ -1,19 +1,39 @@
 import { Component, OnInit, ViewChild, ChangeDetectorRef } from '@angular/core';
 import { MatSnackBar as MatSnackBar } from '@angular/material/snack-bar';
 import { InventoryService } from 'src/app/services/inventory.service';
-import { MatPaginator as MatPaginator, PageEvent as PageEvent } from '@angular/material/paginator';
+import {
+  MatPaginator as MatPaginator,
+  PageEvent as PageEvent,
+} from '@angular/material/paginator';
 import { Phone } from 'src/app/models/phone';
 import { FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
+import { Agency } from 'src/app/models/agency';
 
 @Component({
   selector: 'app-inventory',
   templateUrl: './inventory.component.html',
-  styleUrls: ['./inventory.component.css']
+  styleUrls: ['./inventory.component.css'],
 })
-
 export class InventoryComponent implements OnInit {
   phones: Phone[] = [];
-  displayedColumns: string[] = ['imei', 'status', 'type', 'model', 'masterAgent', 'distributor', 'retailer', 'date', 'employee'];
+  imeiList: string[] = [];
+  agentList: string[] = [];
+  distributorList: string[] = [];
+  retailerList: string[] = [];
+  // employeeNamesList: string[] = [];
+  employeesList: Agency[] = [];
+  displayedColumns: string[] = [
+    'imei',
+    'status',
+    'type',
+    'model',
+    'masterAgent',
+    'distributor',
+    'retailer',
+    'date',
+    'employee',
+    'delete'
+  ];
   totalElements = 0;
   pageSize = 10;
   currentPage = 0;
@@ -24,11 +44,13 @@ export class InventoryComponent implements OnInit {
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
-  constructor(private inventoryService: InventoryService, private fb: FormBuilder,
-    private snackBar: MatSnackBar) {
-
+  constructor(
+    private inventoryService: InventoryService,
+    private fb: FormBuilder,
+    private snackBar: MatSnackBar
+  ) {
     this.addPhoneForm = this.fb.group({
-      phones: this.fb.array([this.initPhoneFields()])
+      phones: this.fb.array([this.initPhoneFields()]),
     });
 
     this.reAssignForm = this.initReAssignFields();
@@ -42,7 +64,7 @@ export class InventoryComponent implements OnInit {
     return this.fb.group({
       imei: ['', Validators.required],
       type: ['', Validators.required],
-      model: ['', Validators.required]
+      model: ['', Validators.required],
     });
   }
 
@@ -73,17 +95,61 @@ export class InventoryComponent implements OnInit {
   }
 
   loadInventory(page: number, size: number): void {
-    this.inventoryService.getAllPhones(page, size).subscribe(data => {
-      this.phones = data.content;
-      this.totalElements = data.totalElements;
-      this.pageSize = data.size;
-      this.currentPage = data.number;
+    this.inventoryService.getAllPhones(page, size).subscribe(
+      (data) => {
+        this.phones = data.content;
+        this.totalElements = data.totalElements;
+        this.pageSize = data.size;
+        this.currentPage = data.number;
 
-      this.showTable = true;
+        // Populate IMEI, Master Agent, and Distributor & Retailer lists for dropdowns, filtering out undefined values
+        this.imeiList = [
+          ...new Set(
+            this.phones.map((phone) => phone.imei).filter((imei) => !!imei)
+          ),
+        ] as string[];
+        this.agentList = [
+          ...new Set(
+            this.phones
+              .map((phone) => phone.masterAgent)
+              .filter((agent) => !!agent)
+          ),
+        ] as string[];
+        this.distributorList = [
+          ...new Set(
+            this.phones
+              .map((phone) => phone.distributor)
+              .filter((distributor) => !!distributor)
+          ),
+        ] as string[];
+        this.retailerList = [
+          ...new Set(
+            this.phones
+              .map((phone) => phone.distributor)
+              .filter((retailer) => !!retailer)
+          ),
+        ] as string[];
 
-    }, error => {
-      console.error('Error fetching inventory:', error);
-    });
+        // Clear previous employee list to avoid duplicates on reload
+      const uniqueEmployees = new Map<number, Agency>();
+
+      // Iterate over phones to populate unique employee details
+      this.phones.forEach((phone: Phone) => {
+        if (phone.employee && !uniqueEmployees.has(phone.employee.id!)) {
+          uniqueEmployees.set(phone.employee.id!, phone.employee);
+        }
+      });
+
+      this.employeesList = Array.from(uniqueEmployees.values());
+
+      console.log('EMPLOYEES LIST:', this.employeesList);
+
+        this.showTable = true;
+      },
+      (error) => {
+        console.error('Error fetching inventory:', error);
+      }
+    );
   }
 
   changePage(event: PageEvent): void {
@@ -101,15 +167,24 @@ export class InventoryComponent implements OnInit {
   submitPhones(): void {
     if (this.addPhoneForm.valid) {
       const phones = this.addPhoneForm.value.phones;
-      this.inventoryService.addPhonesBatch(phones).subscribe(data => {
-        console.log('Phones added successfully', data);
-        this.loadInventory(this.currentPage, this.pageSize);
-        this.addPhoneForm.reset();
-        this.snackBar.open('Phones added successfully!', 'Close', { duration: 3000 });
-      }, error => {
-        console.error('Error adding phones', error);
-        this.snackBar.open('Error adding phones. Please try again.', 'Close', { duration: 3000 });
-      });
+      this.inventoryService.addPhonesBatch(phones).subscribe(
+        (data) => {
+          console.log('Phones added successfully', data);
+          this.loadInventory(this.currentPage, this.pageSize);
+          this.addPhoneForm.reset();
+          this.snackBar.open('Phones added successfully!', 'Close', {
+            duration: 3000,
+          });
+        },
+        (error) => {
+          console.error('Error adding phones', error);
+          this.snackBar.open(
+            'Error adding phones. Please try again.',
+            'Close',
+            { duration: 3000 }
+          );
+        }
+      );
     }
   }
 
@@ -117,18 +192,40 @@ export class InventoryComponent implements OnInit {
     if (this.reAssignForm.valid) {
       const updatedValues = this.reAssignForm.value;
 
-      this.inventoryService.updatePhone(updatedValues.imei, updatedValues).subscribe({
-        next: (response) => {
-          console.log('Update successful', response);
-          this.snackBar.open('Update successful', 'Close', { duration: 3000 });
-          this.loadInventory(this.currentPage, this.pageSize); // Refresh your table data if needed
-          this.reAssignForm.reset();
+      this.inventoryService
+        .updatePhone(updatedValues.imei, updatedValues)
+        .subscribe({
+          next: (response) => {
+            console.log('Update successful', response);
+            this.snackBar.open('Update successful', 'Close', {
+              duration: 3000,
+            });
+            this.loadInventory(this.currentPage, this.pageSize); // Refresh your table data if needed
+            this.reAssignForm.reset();
+          },
+          error: (error) => {
+            console.error('Update failed', error);
+            this.snackBar.open('Update failed. Please try again.', 'Close', {
+              duration: 3000,
+            });
+          },
+        });
+    }
+  }
+
+  deletePhone(imei: string): void {
+    if (confirm("Are you sure you want to delete this phone?")) {
+      this.inventoryService.deletePhone(imei).subscribe({
+        next: () => {
+          this.snackBar.open('Phone deleted successfully', 'Close', { duration: 3000 });
+          this.loadInventory(this.currentPage, this.pageSize); // Refresh the list
         },
-        error: (error) => {
-          console.error('Update failed', error);
-          this.snackBar.open('Update failed. Please try again.', 'Close', { duration: 3000 });
+        error: error => {
+          console.error('There was an error!', error);
+          this.snackBar.open('Failed to delete phone', 'Close', { duration: 3000 });
         }
       });
     }
   }
+
 }

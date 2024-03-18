@@ -21,6 +21,6 @@ export interface Phone {
     distributor?: string;
     retailer?: string;
     date?: string;
-    employee?: number;
+    employee?: Agency;
 }
 
