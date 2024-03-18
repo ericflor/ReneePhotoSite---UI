@@ -15,7 +15,6 @@ import { Agency } from 'src/app/models/agency';
   templateUrl: './inventory.component.html',
   styleUrls: ['./inventory.component.css'],
 })
-
 export class InventoryComponent implements OnInit {
   phones: Phone[] = [];
   imeiList: string[] = [];
@@ -34,7 +33,7 @@ export class InventoryComponent implements OnInit {
     'retailer',
     'date',
     'employee',
-    'delete'
+    'delete',
   ];
   totalElements = 0;
   pageSize = 10;
@@ -68,8 +67,12 @@ export class InventoryComponent implements OnInit {
       imei: ['', Validators.required],
       type: ['', Validators.required],
       model: ['', Validators.required],
+      masterAgent: [''], // Optional field
+      distributor: [''], // Optional field
+      retailer: [''] // Optional field
     });
   }
+
 
   initReAssignFields(): FormGroup {
     return this.fb.group({
@@ -105,39 +108,12 @@ export class InventoryComponent implements OnInit {
         this.pageSize = data.size;
         this.currentPage = data.number;
 
-        // Populate IMEI, Master Agent, and Distributor & Retailer lists for dropdowns, filtering out undefined values
-        this.imeiList = [
-          ...new Set(
-            this.phones.map((phone) => phone.imei).filter((imei) => !!imei)
-          ),
-        ] as string[];
-        this.agentList = [
-          ...new Set(
-            this.phones
-              .map((phone) => phone.masterAgent)
-              .filter((agent) => !!agent)
-          ),
-        ] as string[];
-        this.distributorList = [
-          ...new Set(
-            this.phones
-              .map((phone) => phone.distributor)
-              .filter((distributor) => !!distributor)
-          ),
-        ] as string[];
-        this.retailerList = [
-          ...new Set(
-            this.phones
-              .map((phone) => phone.distributor)
-              .filter((retailer) => !!retailer)
-          ),
-        ] as string[];
+        // Now fetch all agencies and other mat select dropdown data
+        // Populate IMEI, Master Agent, Distributor, Retailer & Employee lists for dropdowns, filtering out undefined values
+        this.fetchAllAgencies();
+        this.loadDropdownData();
 
-      // Now fetch all agencies for the employees list
-      this.fetchAllAgencies();
-
-      this.showTable = true;
-
+        this.showTable = true;
       },
       (error) => {
         console.error('Error fetching inventory:', error);
@@ -145,10 +121,25 @@ export class InventoryComponent implements OnInit {
     );
   }
 
+  loadDropdownData(): void {
+    this.inventoryService.fetchAllForDropdowns().subscribe(
+      (data) => {
+        const phones: Phone[] = data.content;
+
+        this.imeiList = Array.from(new Set(phones.map(phone => phone.imei).filter((imei): imei is string => !!imei)));
+        this.agentList = Array.from(new Set(phones.map(phone => phone.masterAgent).filter((agent): agent is string => !!agent)));
+        this.distributorList = Array.from(new Set(phones.map(phone => phone.distributor).filter((distributor): distributor is string => !!distributor)));
+        this.retailerList = Array.from(new Set(phones.map(phone => phone.retailer).filter((retailer): retailer is string => !!retailer)));
+      },
+      (error) => {
+        console.error('Error fetching phones for dropdowns:', error);
+      }
+    );
+  }
+
   fetchAllAgencies(): void {
-    this.agencyService.getAllAgencies().subscribe(
+    this.agencyService.getAllAgencies(0, 100000000).subscribe(
       (response) => {
-        // Assuming your API returns a list of agencies in the format similar to `data.content`
         const agencies = response.content;
 
         // Map over agencies to create a unique list based on ID
@@ -207,7 +198,7 @@ export class InventoryComponent implements OnInit {
   submitReAssign(): void {
     if (this.reAssignForm.valid) {
       const updatedValues = this.reAssignForm.value;
-      console.log("UPDATED VALUES: " + updatedValues.imei)
+      console.log('UPDATED VALUES: ' + updatedValues.imei);
       this.inventoryService
         .updatePhone(updatedValues.imei, updatedValues)
         .subscribe({
@@ -230,17 +221,59 @@ export class InventoryComponent implements OnInit {
   }
 
   deletePhone(imei: string): void {
-    if (confirm("Are you sure you want to delete this phone?")) {
+    if (confirm('Are you sure you want to delete this phone?')) {
       this.inventoryService.deletePhone(imei).subscribe({
         next: () => {
-          this.snackBar.open('Phone deleted successfully', 'Close', { duration: 3000 });
+          this.snackBar.open('Phone deleted successfully', 'Close', {
+            duration: 3000,
+          });
           this.loadInventory(this.currentPage, this.pageSize); // Refresh the list
         },
-        error: error => {
+        error: (error) => {
           console.error('There was an error!', error);
-          this.snackBar.open('Failed to delete phone', 'Close', { duration: 3000 });
-        }
+          this.snackBar.open('Failed to delete phone', 'Close', {
+            duration: 3000,
+          });
+        },
       });
     }
   }
+
+  removeLastPhoneInput(): void {
+    const control = <FormArray>this.addPhoneForm.get('phones');
+    if (control.length > 1) { // Ensure at least one input remains
+      control.removeAt(control.length - 1);
+    }
+  }
 }
+
+
+
+// MEETING NOTES
+
+
+// Inventory needs an input to load in an excel to batch upload phones to inventory
+// Batch upload from excel for assigning inventory as well
+// also want functionality to export excel sheet from inventory, or by specific parameters like everything for a specific employee, etc
+
+// Inventory needs a reporting tab -> (reference their website under Inventory report, used DNAA master agent as an example)
+// Used means units sold (will go through requirements for Sales flow later)
+// Free is how many you have in inventory
+// Removed is defective, manually took out
+// clicking on one of those should generate the report of that data
+
+
+// add in column or data point for age of phone while in inventory (Date now - date created)
+
+
+// PERMISIONS RULES: DO THIS FIRST!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+// 1 - ADMIN - MASTER AGENT
+// 2 - Distributor
+// 3 - Retailer
+// 4 - Employee
+// 1 transfer anywhere
+// 2 transfer to 3 & 4
+// 3 transfer to 4
+// 4 cant use system
+// NO ONE can see anything else

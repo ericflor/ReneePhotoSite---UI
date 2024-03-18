@@ -10,7 +10,7 @@ export class AgencyService {
 
   constructor(private http: HttpClient) { }
 
-  getAllAgencies(page: number = 0, size: number = 10): Observable<any> {
+  getAllAgencies(page: number, size: number): Observable<any> {
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${localStorage.getItem('accessToken') || ''}`
     });
@@ -19,4 +19,27 @@ export class AgencyService {
 
     return this.http.get(this.apiUrl, { headers, params });
   }
+
+  createAgency(agency: any): Observable<any> {
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${localStorage.getItem('accessToken') || ''}`
+    });
+    return this.http.post(`${this.apiUrl}`, agency, { headers });
+  }
+
+  updateAgency(id: number, agency: any): Observable<any> {
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${localStorage.getItem('accessToken') || ''}`
+    });
+    return this.http.patch(`${this.apiUrl}/${id}`, agency, { headers });
+  }
+
+  deleteAgency(id: number): Observable<any> {
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${localStorage.getItem('accessToken') || ''}`
+    });
+    return this.http.delete(`${this.apiUrl}/${id}`, { headers });
+  }
+
+
 }

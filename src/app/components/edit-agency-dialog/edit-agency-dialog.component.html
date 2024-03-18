@@ -1,0 +1,41 @@
+<h1 mat-dialog-title>Edit Agency</h1>
+<div mat-dialog-content class="agency-dialog-content">
+  <form [formGroup]="editAgencyForm">
+    <mat-form-field appearance="fill">
+      <mat-label>Name</mat-label>
+      <input matInput formControlName="name">
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Email</mat-label>
+      <input matInput formControlName="email" type="email">
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Username</mat-label>
+      <input matInput formControlName="username">
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Level</mat-label>
+      <mat-select formControlName="level">
+        <mat-option value="MASTER_AGENT">Master Agent</mat-option>
+        <mat-option value="DISTRIBUTOR">Distributor</mat-option>
+        <mat-option value="RETAILER">Retailer</mat-option>
+        <mat-option value="EMPLOYEE">Employee</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Role</mat-label>
+      <mat-select formControlName="role">
+        <mat-option value="ADMIN">Admin</mat-option>
+        <mat-option value="EMPLOYEE">Employee</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </form>
+</div>
+<div mat-dialog-actions>
+  <button mat-button (click)="closeDialog()" color="primary" class="save-btn">Update</button>
+  <button mat-button mat-dialog-close color="warn" class="cancel-btn">Cancel</button>
+</div>

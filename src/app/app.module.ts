@@ -24,6 +24,8 @@ import { AgencyComponent } from './components/agency/agency.component';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { EditOrderFormComponent } from './components/edit-order-form/edit-order-form.component';
 import { MatDialogModule } from '@angular/material/dialog';
+import { CreateAgencyDialogComponent } from './components/create-agency-dialog/create-agency-dialog.component';
+import { EditAgencyDialogComponent } from './components/edit-agency-dialog/edit-agency-dialog.component';
 
 
 @NgModule({
@@ -36,8 +38,9 @@ import { MatDialogModule } from '@angular/material/dialog';
     InventoryComponent,
     OrdersComponent,
     AgencyComponent,
-    EditOrderFormComponent
-  ],
+    EditOrderFormComponent,
+    CreateAgencyDialogComponent,
+    EditAgencyDialogComponent  ],
   imports: [
     BrowserModule,
     AppRoutingModule,

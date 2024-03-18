@@ -13,11 +13,6 @@
         <mat-form-field appearance="fill" class="input-field">
           <mat-label>Type</mat-label>
           <input matInput formControlName="type">
-          <!-- <mat-select formControlName="type">
-            <mat-option value="SMARTPHONE">Smartphone</mat-option>
-            <mat-option value="FLIP">Flip Phone</mat-option>
-            <mat-option value="TABLET">Tablet</mat-option>
-          </mat-select> -->
         </mat-form-field>
 
         <mat-form-field appearance="fill" class="input-field">
@@ -25,24 +20,42 @@
           <input matInput formControlName="model">
         </mat-form-field>
 
-        <button mat-icon-button color="warn" (click)="removePhoneInput(i)" class="delete-button">
+        <!-- New fields -->
+        <div class="additional-fields">
+          <mat-form-field appearance="fill" class="input-field">
+            <mat-label>Master Agent</mat-label>
+            <input matInput formControlName="masterAgent">
+          </mat-form-field>
+          <mat-form-field appearance="fill" class="input-field">
+            <mat-label>Distributor</mat-label>
+            <input matInput formControlName="distributor">
+          </mat-form-field>
+          <mat-form-field appearance="fill" class="input-field">
+            <mat-label>Retailer</mat-label>
+            <input matInput formControlName="retailer">
+          </mat-form-field>
+        </div>
+
+        <!-- <button mat-icon-button color="warn" (click)="removePhoneInput(i)" class="delete-button">
           <mat-icon>delete</mat-icon>
-        </button>
+        </button> -->
 
       </div>
     </div>
 
     <div class="form-actions">
       <button mat-button (click)="addNewPhoneInput()">Add Another Phone</button>
+      <button mat-button color="warn" (click)="removeLastPhoneInput()" *ngIf="phonesFormArray.controls.length > 1">Remove Last Phone</button>
       <button mat-raised-button color="primary" type="submit">Add to Inventory</button>
     </div>
+
   </form>
 </div>
 
 
 
 <div class="inventory-page-container">
-  <h1 class="table-header">Inventory Re-Assign</h1>
+  <h1 class="table-header">Inventory (Re)Assign</h1>
   <form [formGroup]="reAssignForm" (ngSubmit)="submitReAssign()" class="inventory-form">
 
     <!-- IMEI Select -->
@@ -164,7 +177,7 @@
         <th mat-header-cell *matHeaderCellDef></th>
         <td mat-cell *matCellDef="let element">
           <button mat-icon-button (click)="deletePhone(element.imei)">
-            <mat-icon>delete</mat-icon>
+            <mat-icon color="warn">delete</mat-icon>
           </button>
         </td>
       </ng-container>

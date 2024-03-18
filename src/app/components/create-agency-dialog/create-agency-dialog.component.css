@@ -1,0 +1,38 @@
+/* Agency Dialog Styles */
+.agency-dialog-content {
+  display: flex;
+  flex-direction: column;
+  width: 100%; /* Adjust width as needed */
+}
+
+.mat-dialog-content {
+  min-width: 600px; /* Makes the form wider */
+}
+
+.mat-form-field {
+  width: 100%; /* Ensures form fields use the full width */
+  margin-bottom: 16px; /* Adds some space between form fields */
+}
+
+.mat-checkbox {
+  margin-top: 20px; /* Adds space above the checkbox */
+}
+
+.mat-dialog-actions {
+  justify-content: flex-end;
+  padding: 8px 0;
+}
+
+button[mat-dialog-close] {
+  margin-left: 8px;
+}
+
+.save-btn {
+  color: white;
+  background-color: #4CAF50; /* Green */
+}
+
+.cancel-btn {
+  color: white;
+  background-color: #F44336; /* Red */
+}

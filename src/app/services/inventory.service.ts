@@ -4,16 +4,17 @@ import { Observable } from 'rxjs';
 import { Phone } from '../models/phone';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class InventoryService {
   private apiUrl = 'http://localhost:8080/inventory';
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
-  getAllPhones(page: number = 0, size: number = 10): Observable<any> { // Adjust the return type based on your data model
+  getAllPhones(page: number, size: number): Observable<any> {
+    // Adjust the return type based on your data model
     const headers = new HttpHeaders({
-      'Authorization': `Bearer ${this.getAuthToken()}`
+      Authorization: `Bearer ${this.getAuthToken()}`,
     });
 
     // Create HttpParams with page and size
@@ -27,7 +28,7 @@ export class InventoryService {
   addPhonesBatch(phones: any[]): Observable<any> {
     const headers = new HttpHeaders({
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${this.getAuthToken()}`
+      Authorization: `Bearer ${this.getAuthToken()}`,
     });
 
     return this.http.post(`${this.apiUrl}/batch`, phones, { headers });
@@ -36,16 +37,18 @@ export class InventoryService {
   updatePhone(imei: string, phoneDetails: Phone): Observable<Phone> {
     const headers = new HttpHeaders({
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${this.getAuthToken()}`
+      Authorization: `Bearer ${this.getAuthToken()}`,
     });
-    console.log("PHONE DETAILS: " + phoneDetails.employee);
-    return this.http.patch<Phone>(`${this.apiUrl}/${imei}`, phoneDetails, { headers });
+    console.log('PHONE DETAILS: ' + phoneDetails.employee);
+    return this.http.patch<Phone>(`${this.apiUrl}/${imei}`, phoneDetails, {
+      headers,
+    });
   }
 
   deletePhone(imei: string): Observable<any> {
     const headers = new HttpHeaders({
-      'Authorization': `Bearer ${this.getAuthToken()}`,
-      'Content-Type': 'application/json'
+      Authorization: `Bearer ${this.getAuthToken()}`,
+      'Content-Type': 'application/json',
     });
 
     return this.http.delete(`${this.apiUrl}/${imei}`, { headers });
@@ -54,4 +57,15 @@ export class InventoryService {
   private getAuthToken(): string {
     return localStorage.getItem('accessToken') || '';
   }
+
+  fetchAllForDropdowns(): Observable<any> {
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${this.getAuthToken()}`,
+    });
+
+    const params = new HttpParams().set('size', '100000000');
+
+    return this.http.get(this.apiUrl, { headers, params });
+  }
+
 }

@@ -48,12 +48,21 @@ mat-paginator {
 
 .phone-input-group {
   display: flex;
-  align-items: center;
+  flex-wrap: wrap;
   gap: 10px;
+  align-items: flex-end; /* Ensure alignment is consistent */
 }
 
-.input-field {
+.additional-fields {
+  width: 100%; /* Take full width to ensure it sits below other fields */
+  display: flex;
+  justify-content: space-between; /* Space out the inputs */
+  margin-top: 20px; /* Add some space above the new fields */
+}
+
+.input-field, .additional-fields .input-field {
   flex: 1;
+  min-width: 200px; /* Ensure inputs do not become too narrow */
 }
 
 .delete-button {
@@ -66,6 +75,3 @@ mat-paginator {
   gap: 10px;
   margin-top: 20px;
 }
-
-
-

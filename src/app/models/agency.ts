@@ -35,5 +35,3 @@ export namespace Agency {
       Employee: 'EMPLOYEE' as RoleEnum
   };
 }
-
-

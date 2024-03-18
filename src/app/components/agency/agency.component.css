@@ -28,3 +28,38 @@ mat-paginator {
   width: 100%; /* Ensures paginator uses the full width of its container */
   padding: 20px; /* Adds some spacing around the paginator */
 }
+
+.create-agency-action{
+  margin-bottom: 3%;
+  margin-top: 1%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.action-icon {
+  cursor: pointer;
+  margin-right: 10px; /* Increase the right margin */
+}
+
+
+.cell-action {
+  text-align: center;
+}
+
+.blocked-header {
+  text-align: center;
+}
+
+.blocked-container {
+  text-align: center;
+}
+
+.action-icon, .block-icon {
+  cursor: pointer;
+}
+
+.block-button {
+  /* margin: 0 auto; */
+  display: inline-block;
+}
