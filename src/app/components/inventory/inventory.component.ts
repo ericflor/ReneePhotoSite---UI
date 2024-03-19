@@ -215,13 +215,11 @@ export class InventoryComponent implements OnInit {
 
   submitReAssign(): void {
     if (this.reAssignForm.valid) {
-      // Extract the form values
       const formValues = this.reAssignForm.value;
 
       // Prepare the request payload
       const payload: any = {
         imei: formValues.imei,
-        // Only include employee if it has a value
         ...(formValues.employee.id && { employee: formValues.employee }),
       };
 
@@ -236,27 +234,32 @@ export class InventoryComponent implements OnInit {
         payload.retailer = formValues.retailer;
       }
 
-      this.inventoryService
-        .updatePhone(payload.imei, payload)
-        .subscribe({
-          next: (response) => {
-            console.log('Update successful', response);
-            this.snackBar.open('Update successful', 'Close', {
-              duration: 3000,
-            });
-            this.loadInventory(this.currentPage, this.pageSize); // Refresh your table data if needed
-            this.reAssignForm.reset();
-          },
-          error: (error) => {
-            console.error('Update failed', error);
-            this.snackBar.open('Update failed. Please try again.', 'Close', {
-              duration: 3000,
-            });
-          },
-        });
+      this.inventoryService.updatePhone(payload.imei, payload).subscribe({
+        next: (response) => {
+          console.log('Update successful', response);
+          this.snackBar.open('Update successful', 'Close', {
+            duration: 3000,
+          });
+          this.loadInventory(this.currentPage, this.pageSize); // Refresh your table data if needed
+          this.reAssignForm.reset();
+        },
+        error: (error) => {
+          console.error('Update failed', error);
+          let errorMessage = 'Update failed. Please try again.'; // Default error message
+          if (error.error && typeof error.error === 'string') {
+            // If the error object contains a string message, use it
+            errorMessage = error.error;
+          } else if (error.error && error.error.error && typeof error.error.error === 'string') {
+            // For more deeply nested error messages
+            errorMessage = error.error.error;
+          }
+          this.snackBar.open(errorMessage, 'Close', {
+            duration: 3000,
+          });
+        },
+      });
     }
   }
-
 
   deletePhone(imei: string): void {
     if (confirm('Are you sure you want to delete this phone?')) {
