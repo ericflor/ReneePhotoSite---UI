@@ -55,16 +55,16 @@
       <ng-container matColumnDef="action">
         <th mat-header-cell *matHeaderCellDef> Action </th>
         <td mat-cell *matCellDef="let agency">
-          <mat-icon color="primary" (click)="editAgency(agency)" class="action-icon">edit</mat-icon>
-          <mat-icon color="warn" (click)="deleteAgency(agency.id)" class="action-icon">delete</mat-icon>
+          <mat-icon *ngIf="!isEmployee" color="primary" (click)="editAgency(agency)" class="action-icon">edit</mat-icon>
+          <mat-icon *ngIf="!isEmployee" color="warn" (click)="deleteAgency(agency.id)" class="action-icon">delete</mat-icon>
         </td>
       </ng-container>
 
       <ng-container matColumnDef="blocked" class="blocked-container">
         <th mat-header-cell *matHeaderCellDef class="blocked-header"> Blocked </th>
         <td mat-cell *matCellDef="let agency" class="cell-action">
-          <mat-icon *ngIf="agency.blocked" color="warn" (click)="unblockAgency(agency.id)" class="block-icon">cancel</mat-icon>
-          <button *ngIf="!agency.blocked" color="warn" mat-button (click)="blockAgency(agency.id)" class="block-button">Block</button>
+          <mat-icon *ngIf="agency.blocked && !isEmployee" color="warn" (click)="unblockAgency(agency.id)" class="block-icon">cancel</mat-icon>
+          <button *ngIf="!agency.blocked && !isEmployee" color="warn" mat-button (click)="blockAgency(agency.id)" class="block-button">Block</button>
         </td>
       </ng-container>
 

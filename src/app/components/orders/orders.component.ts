@@ -242,8 +242,16 @@ export class OrdersComponent implements OnInit {
           verticalPosition: 'top',
         });
       },
-      error: () => {
-        this.snackBar.open('Failed to update tracking number', 'Close', {
+      error: (error) => {
+        let errorMessage = 'Failed to update tracking number'; // Default error message
+        if (error.error && typeof error.error === 'string') {
+          // If the error object contains a string message, use it
+          errorMessage = error.error;
+        } else if (error.error && error.error.error && typeof error.error.error === 'string') {
+          // For more deeply nested error messages
+          errorMessage = error.error.error;
+        }
+        this.snackBar.open(errorMessage, 'Close', {
           duration: 3000,
           horizontalPosition: 'right',
           verticalPosition: 'top',
@@ -251,4 +259,5 @@ export class OrdersComponent implements OnInit {
       },
     });
   }
+
 }
