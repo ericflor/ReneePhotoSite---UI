@@ -14,4 +14,19 @@ export class AuthGuardService  {
     }
     return true;
   }
+
+  // Decode JWT token and return roles
+  getUserRoles(): string[] {
+    const token = localStorage.getItem('accessToken');
+    if (!token) return [];
+
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return payload.roles || [];
+  }
+
+  // Check if the user has a specific role
+  hasRole(role: string): boolean {
+    const roles = this.getUserRoles();
+    return roles.includes(role);
+  }
 }

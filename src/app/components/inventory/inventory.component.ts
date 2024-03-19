@@ -9,6 +9,7 @@ import {
 import { Phone } from 'src/app/models/phone';
 import { FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
 import { Agency } from 'src/app/models/agency';
+import { AuthGuardService } from 'src/app/services/authGuard.service';
 
 @Component({
   selector: 'app-inventory',
@@ -46,6 +47,7 @@ export class InventoryComponent implements OnInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
   constructor(
+    private authService: AuthGuardService,
     private inventoryService: InventoryService,
     private agencyService: AgencyService,
     private fb: FormBuilder,
@@ -60,6 +62,11 @@ export class InventoryComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadInventory(this.currentPage, this.pageSize);
+  }
+
+  // If logged in user is employee, they should only be able to see the table
+  get isEmployee(): boolean {
+    return this.authService.hasRole('ROLE_EMPLOYEE');
   }
 
   initPhoneFields(): FormGroup {
@@ -83,6 +90,17 @@ export class InventoryComponent implements OnInit {
       employee: this.fb.group({
         id: [''],
       }),
+    });
+  }
+
+  resetReAssignForm(): void {
+    // Resets the form fields to empty values or initial state
+    this.reAssignForm.reset({
+      imei: '', // Resetting to empty or initial value
+      masterAgent: '',
+      distributor: '',
+      retailer: '',
+      employee: { id: '' },
     });
   }
 
@@ -197,10 +215,29 @@ export class InventoryComponent implements OnInit {
 
   submitReAssign(): void {
     if (this.reAssignForm.valid) {
-      const updatedValues = this.reAssignForm.value;
-      console.log('UPDATED VALUES: ' + updatedValues.imei);
+      // Extract the form values
+      const formValues = this.reAssignForm.value;
+
+      // Prepare the request payload
+      const payload: any = {
+        imei: formValues.imei,
+        // Only include employee if it has a value
+        ...(formValues.employee.id && { employee: formValues.employee }),
+      };
+
+      // Conditionally add fields if they have values
+      if (formValues.masterAgent) {
+        payload.masterAgent = formValues.masterAgent;
+      }
+      if (formValues.distributor) {
+        payload.distributor = formValues.distributor;
+      }
+      if (formValues.retailer) {
+        payload.retailer = formValues.retailer;
+      }
+
       this.inventoryService
-        .updatePhone(updatedValues.imei, updatedValues)
+        .updatePhone(payload.imei, payload)
         .subscribe({
           next: (response) => {
             console.log('Update successful', response);
@@ -220,6 +257,7 @@ export class InventoryComponent implements OnInit {
     }
   }
 
+
   deletePhone(imei: string): void {
     if (confirm('Are you sure you want to delete this phone?')) {
       this.inventoryService.deletePhone(imei).subscribe({
@@ -231,13 +269,18 @@ export class InventoryComponent implements OnInit {
         },
         error: (error) => {
           console.error('There was an error!', error);
-          this.snackBar.open('Failed to delete phone', 'Close', {
+          let errorMessage = 'Failed to delete phone. Please try again later.';
+          if (error.error) {
+            errorMessage = error.error.message || 'Failed to delete phone. You do not have the necessary permissions to perform this action.';
+          }
+          this.snackBar.open(errorMessage, 'Close', {
             duration: 3000,
           });
         },
       });
     }
   }
+
 
   removeLastPhoneInput(): void {
     const control = <FormArray>this.addPhoneForm.get('phones');

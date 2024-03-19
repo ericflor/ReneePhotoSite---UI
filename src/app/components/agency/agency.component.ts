@@ -8,6 +8,7 @@ import {
 import { CreateAgencyDialogComponent } from '../create-agency-dialog/create-agency-dialog.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { EditAgencyDialogComponent } from '../edit-agency-dialog/edit-agency-dialog.component';
+import { AuthGuardService } from 'src/app/services/authGuard.service';
 
 @Component({
   selector: 'app-agency',
@@ -33,6 +34,7 @@ export class AgencyComponent implements OnInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
 
   constructor(
+    private authService: AuthGuardService,
     private snackBar: MatSnackBar,
     private agencyService: AgencyService,
     public dialog: MatDialog
@@ -40,6 +42,11 @@ export class AgencyComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadAgencies(this.currentPage, this.pageSize);
+  }
+
+  // If logged in user is employee, they should only be able to see the table
+  get isEmployee(): boolean {
+    return this.authService.hasRole('ROLE_EMPLOYEE');
   }
 
   createAgency(): void {
@@ -52,7 +59,6 @@ export class AgencyComponent implements OnInit {
       if (result) {
         this.agencyService.createAgency(result).subscribe({
           next: (newAgency) => {
-            // Assuming your API responds with the newly created agency
             this.loadAgencies(this.currentPage, this.pageSize); // Refresh list
             this.snackBar.open('Agency created successfully', 'Close', {
               duration: 3000,
@@ -91,7 +97,6 @@ export class AgencyComponent implements OnInit {
             });
           },
           error: (errorResponse) => {
-            // Assuming the backend sends a specific error structure. Adjust according to your actual API response.
             let errorMessage = 'Failed to update agency';
             if (
               errorResponse.error &&
@@ -175,9 +180,7 @@ export class AgencyComponent implements OnInit {
   }
 
   deleteAgency(id: number): void {
-    const confirmation = confirm(
-      'Are you sure you want to delete this agency?'
-    );
+    const confirmation = confirm('Are you sure you want to delete this agency?');
     if (confirmation) {
       this.agencyService.deleteAgency(id).subscribe({
         next: () => {
@@ -188,8 +191,13 @@ export class AgencyComponent implements OnInit {
           });
           this.loadAgencies(this.currentPage, this.pageSize); // Refresh the list after deletion
         },
-        error: () => {
-          this.snackBar.open('Failed to delete the agency', 'Close', {
+        error: (error) => {
+          console.error('There was an error!', error);
+          let errorMessage = 'Failed to delete agency. Please try again later.';
+          if (error.error) {
+            errorMessage = error.error.message || 'Failed to delete agency. You do not have the necessary permissions to perform this action.';
+          }
+          this.snackBar.open(errorMessage, 'Close', {
             duration: 3000,
             horizontalPosition: 'right',
             verticalPosition: 'top',
@@ -198,4 +206,5 @@ export class AgencyComponent implements OnInit {
       });
     }
   }
+
 }

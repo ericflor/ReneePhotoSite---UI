@@ -63,3 +63,19 @@ mat-paginator {
   /* margin: 0 auto; */
   display: inline-block;
 }
+
+.role-admin {
+  color: green;
+}
+
+.role-distributor {
+  color: yellowgreen;
+}
+
+.role-retailer {
+  color: orange;
+}
+
+.role-employee {
+  color: orangered;
+}

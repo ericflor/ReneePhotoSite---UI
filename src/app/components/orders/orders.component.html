@@ -2,7 +2,7 @@
   <div class="mat-elevation-z8">
 
 
-    <div class="create-order-action">
+    <div *ngIf="!isEmployee" class="create-order-action">
       <button mat-raised-button color="accent" (click)="createOrder()">Create Order</button>
     </div>
 

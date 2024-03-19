@@ -1,6 +1,8 @@
 <div class="inventory-page-container">
-  <h1 class="table-header">Add New Device</h1>
-  <form [formGroup]="addPhoneForm" (ngSubmit)="submitPhones()" class="inventory-form">
+
+  <h1 *ngIf="!isEmployee" class="table-header">Add New Device</h1>
+
+  <form *ngIf="!isEmployee" [formGroup]="addPhoneForm" (ngSubmit)="submitPhones()" class="inventory-form">
     <div formArrayName="phones">
       <div *ngFor="let phone of phonesFormArray.controls; let i = index" [formGroupName]="i" class="phone-input-group">
 
@@ -54,7 +56,7 @@
 
 
 
-<div class="inventory-page-container">
+<div *ngIf="!isEmployee" class="inventory-page-container">
   <h1 class="table-header">Inventory (Re)Assign</h1>
   <form [formGroup]="reAssignForm" (ngSubmit)="submitReAssign()" class="inventory-form">
 
@@ -105,6 +107,7 @@
     </div>
 
     <div class="form-actions">
+      <button mat-button (click)="resetReAssignForm()" type="button">Clear Form</button>
       <button mat-raised-button color="primary" type="submit">Update Inventory</button>
     </div>
   </form>

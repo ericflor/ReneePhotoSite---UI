@@ -8,6 +8,8 @@ import { Order } from 'src/app/models/order';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { EditOrderFormComponent } from '../edit-order-form/edit-order-form.component';
+import { AuthGuardService } from 'src/app/services/authGuard.service';
+
 
 @Component({
   selector: 'app-orders',
@@ -35,6 +37,7 @@ export class OrdersComponent implements OnInit {
   order: any;
 
   constructor(
+    private authService: AuthGuardService,
     private orderService: OrderService,
     private snackBar: MatSnackBar,
     private changeDetectorRefs: ChangeDetectorRef,
@@ -43,6 +46,11 @@ export class OrdersComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadOrders(this.currentPage, this.pageSize);
+  }
+
+  // If logged in user is employee, they should only be able to see the table
+  get isEmployee(): boolean {
+    return this.authService.hasRole('ROLE_EMPLOYEE');
   }
 
   loadOrders(page: number, size: number): void {

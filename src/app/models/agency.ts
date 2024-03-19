@@ -32,6 +32,8 @@ export namespace Agency {
   export type RoleEnum = 'ADMIN' | 'EMPLOYEE';
   export const RoleEnum = {
       Admin: 'ADMIN' as RoleEnum,
+      Distributor: 'DISTRIBUTOR' as RoleEnum,
+      Retailer: 'RETAILER' as RoleEnum,
       Employee: 'EMPLOYEE' as RoleEnum
   };
 }
