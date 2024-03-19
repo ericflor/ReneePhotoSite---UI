@@ -179,7 +179,7 @@
       <ng-container matColumnDef="delete">
         <th mat-header-cell *matHeaderCellDef></th>
         <td mat-cell *matCellDef="let element">
-          <button mat-icon-button (click)="deletePhone(element.imei)">
+          <button *ngIf="!isEmployee" mat-icon-button (click)="deletePhone(element.imei)">
             <mat-icon color="warn">delete</mat-icon>
           </button>
         </td>
