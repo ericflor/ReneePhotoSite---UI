@@ -1,6 +1,8 @@
 <nav class="navbar">
   <div class="nav-title">
-    <a (click)="navigateTo('/')">Monopoly Solutions LLC</a>
+    <!--  img tag for the logo next to the title -->
+    <img [src]="logoUrl" alt="Monopoly Solutions Logo" class="navbar-logo">
+    <a (click)="navigateTo('/')"></a>
   </div>
   <div class="nav-links">
     <a (click)="navigateTo('/inventory')">Inventory</a>

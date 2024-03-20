@@ -7,6 +7,7 @@ import { Router } from '@angular/router';
   styleUrls: ['./navbar.component.css']
 })
 export class NavbarComponent {
+  logoUrl = 'assets/logo.jpg';
 
   constructor(private router: Router) { }
 
@@ -15,9 +16,7 @@ export class NavbarComponent {
   }
 
   logout(): void {
-    // Implement logout logic here
-    // For example, removing the token from localStorage
     localStorage.removeItem('accessToken');
-    this.router.navigate(['/']); // Navigate to home page after logout
+    this.router.navigate(['/']);
   }
 }
