@@ -1,5 +1,31 @@
 <div class="inventory-page-container">
 
+
+  <div class="upload-section">
+    <!-- Hidden file input -->
+    <input type="file" #fileInput id="file" (change)="handleFileInputChange($event)" hidden
+      accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" />
+    <!-- Upload button -->
+    <button mat-raised-button (click)="openFileInput()">
+      <mat-icon>file_upload</mat-icon> Upload CSV/Excel
+    </button>
+    <!-- Drag and drop area -->
+    <div class="drag-drop-box" (drop)="onDrop($event)" (dragover)="onDragOver($event)"
+      (dragleave)="onDragLeave($event)">
+      <!-- <mat-icon class="upload-icon">cloud_upload</mat-icon> -->
+      <p>Drag and drop your file here, or click the button above to select a file.</p>
+    </div>
+    <div *ngIf="selectedFileName" class="file-name-display">
+      Selected file: {{selectedFileName}}
+    </div>
+    <button mat-raised-button (click)="triggerUpload()">
+      <mat-icon>cloud_upload</mat-icon> Add Devices
+    </button>
+  </div>
+  <!-- Additional content goes here -->
+
+
+
   <h1 *ngIf="!isEmployee" class="table-header">Add New Device</h1>
 
   <form *ngIf="!isEmployee" [formGroup]="addPhoneForm" (ngSubmit)="submitPhones()" class="inventory-form">
@@ -47,7 +73,8 @@
 
     <div class="form-actions">
       <button mat-button (click)="addNewPhoneInput()">Add Another Phone</button>
-      <button mat-button color="warn" (click)="removeLastPhoneInput()" *ngIf="phonesFormArray.controls.length > 1">Remove Last Phone</button>
+      <button mat-button color="warn" (click)="removeLastPhoneInput()"
+        *ngIf="phonesFormArray.controls.length > 1">Remove Last Phone</button>
       <button mat-raised-button color="primary" type="submit">Add to Inventory</button>
     </div>
 

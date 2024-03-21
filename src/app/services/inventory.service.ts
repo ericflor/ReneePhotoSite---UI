@@ -25,7 +25,7 @@ export class InventoryService {
     return this.http.get(this.apiUrl, { headers, params });
   }
 
-  addPhonesBatch(phones: any[]): Observable<any> {
+  addPhonesBatch(phones: Phone[]): Observable<any> {
     const headers = new HttpHeaders({
       'Content-Type': 'application/json',
       Authorization: `Bearer ${this.getAuthToken()}`,
