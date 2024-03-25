@@ -396,43 +396,44 @@ export class InventoryComponent implements OnInit {
     Papa.parse(file, {
       complete: (result: any) => {
         console.log('Parsed CSV:', result);
-        this.processData(result.data); // Implement this method to process your data
+        this.processData(result.data); // Implement this method to process data
       },
     });
   }
 
   processData(data: any[]) {
     // Assuming the first row is headers and the rest are data rows
-    const headers = data[0];
+    const headers = data[0].map((header: string) => header.toLowerCase()); // Normalize headers to lowercase
     const rows = data.slice(1);
 
     const phones = rows.map((row) => {
       let phone: any = {};
       row.forEach((cell: any, index: number) => {
         const header = headers[index];
+        // Use lowercase in your switch-case to match the normalized headers
         switch (header) {
-          case 'Imei':
+          case 'imei':
             phone.imei = cell;
             break;
-          case 'Status':
+          case 'status':
             phone.status = cell;
             break;
-          case 'Device type':
+          case 'device type':
             phone.type = cell;
             break;
-          case 'Device model':
+          case 'device model':
             phone.model = cell;
             break;
-          case 'Master Agent':
+          case 'master agent':
             phone.masterAgent = cell;
             break;
-          case 'Distributor':
+          case 'distributor':
             phone.distributor = cell;
             break;
-          case 'Retailer':
+          case 'retailer':
             phone.retailer = cell;
             break;
-          case 'Date':
+          case 'date':
             phone.date = this.formatDate(cell);
             break;
           default:
@@ -442,16 +443,16 @@ export class InventoryComponent implements OnInit {
       return phone;
     });
 
-    console.log('Transformed Phones:', phones);
+    console.log('Transformed File values:', phones);
 
     this.parsedPhones = phones;
-    console.log('Transformed Phones ready for submission:', this.parsedPhones);
+    console.log('Transformed Values ready for submission:', this.parsedPhones);
 
-    // Optionally, give feedback to the user that the file has been processed and is ready to be submitted
-    this.snackBar.open('File processed. Ready to add devices.', 'Close', {
+    this.snackBar.open('File processed. Ready to submit batch.', 'Close', {
       duration: 3000,
     });
   }
+
 
   formatDate(dateString: string | number | Date) {
     const date = new Date(dateString);
@@ -492,7 +493,38 @@ export class InventoryComponent implements OnInit {
       });
     }
   }
+
+  triggerReAssignUpload() {
+    if (this.selectedFileName && this.parsedPhones.length > 0) {
+      // Now call the updatePhonesBatch method with the stored data
+      this.inventoryService.updatePhonesBatch(this.parsedPhones).subscribe(
+        (data) => {
+          console.log('Inventory (re)assigned successfully', data);
+          this.loadInventory(this.currentPage, this.pageSize);
+          this.addPhoneForm.reset();
+          this.clearFileInput(); // Clear the selected file info
+          this.parsedPhones = [];
+          this.snackBar.open('Inventory (re)assigned successfully!', 'Close', {
+            duration: 3000,
+          });
+        },
+        (error) => {
+          console.error('Error (re)assigning inventory', error);
+          this.snackBar.open('Error (re)assigning inventory. Please try again.', 'Close', {
+            duration: 3000,
+          });
+        }
+      );
+    } else {
+      this.snackBar.open('Please select a file to upload and process it first.', 'Close', {
+        duration: 3000,
+      });
+    }
+  }
+
 }
+
+
 
 // MEETING NOTES
 

@@ -18,11 +18,10 @@
     <div *ngIf="selectedFileName" class="file-name-display">
       Selected file: {{selectedFileName}}
     </div>
-    <button mat-raised-button (click)="triggerUpload()">
+    <button color="primary" mat-raised-button (click)="triggerUpload()">
       <mat-icon>cloud_upload</mat-icon> Add Devices
     </button>
   </div>
-  <!-- Additional content goes here -->
 
 
 
@@ -81,62 +80,88 @@
   </form>
 </div>
 
+<!-- CSV/Excel Uploader for Batch (RE)Assign -->
+
+<div class="upload-section">
+  <!-- Hidden file input -->
+  <input type="file" #fileInput id="file" (change)="handleFileInputChange($event)" hidden
+    accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" />
+  <!-- Upload button -->
+  <button mat-raised-button (click)="openFileInput()">
+    <mat-icon>file_upload</mat-icon> Upload CSV/Excel
+  </button>
+  <!-- Drag and drop area -->
+  <div class="drag-drop-box" (drop)="onDrop($event)" (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)">
+    <!-- <mat-icon class="upload-icon">cloud_upload</mat-icon> -->
+    <p>Drag and drop your file here, or click the button above to select a file.</p>
+  </div>
+  <div *ngIf="selectedFileName" class="file-name-display">
+    Selected file: {{selectedFileName}}
+  </div>
+  <button color="primary" mat-raised-button (click)="triggerReAssignUpload()">
+    <mat-icon>cloud_upload</mat-icon> (Re)Assign Inventory
+  </button>
+</div>
+
 
 
 <div *ngIf="!isEmployee" class="inventory-page-container">
   <h1 class="table-header">Inventory (Re)Assign</h1>
   <form [formGroup]="reAssignForm" (ngSubmit)="submitReAssign()" class="inventory-form">
-
-    <!-- IMEI Select -->
-    <mat-form-field appearance="fill" class="input-field">
-      <mat-label>IMEI</mat-label>
-      <mat-select formControlName="imei">
-        <mat-option *ngFor="let imei of imeiList" [value]="imei">{{ imei }}</mat-option>
-      </mat-select>
-    </mat-form-field>
-
     <div class="phone-input-group">
-      <!-- Master Agent Select -->
+
+      <!-- IMEI Select -->
       <mat-form-field appearance="fill" class="input-field">
-        <mat-label>Master Agent</mat-label>
-        <mat-select formControlName="masterAgent">
-          <mat-option *ngFor="let agent of agentList" [value]="agent">{{ agent }}</mat-option>
+        <mat-label>IMEI</mat-label>
+        <mat-select formControlName="imei">
+          <mat-option *ngFor="let imei of imeiList" [value]="imei">{{ imei }}</mat-option>
         </mat-select>
       </mat-form-field>
 
-      <!-- Distributor Select -->
-      <mat-form-field appearance="fill" class="input-field">
-        <mat-label>Distributor</mat-label>
-        <mat-select formControlName="distributor">
-          <mat-option *ngFor="let distributor of distributorList" [value]="distributor">{{ distributor }}</mat-option>
-        </mat-select>
-      </mat-form-field>
-    </div>
-
-    <div class="phone-input-group">
-      <!-- Retailer Select -->
-      <mat-form-field appearance="fill" class="input-field">
-        <mat-label>Retailer</mat-label>
-        <mat-select formControlName="retailer">
-          <mat-option *ngFor="let retailer of retailerList" [value]="retailer">{{ retailer }}</mat-option>
-        </mat-select>
-      </mat-form-field>
-
-      <!-- Employee Select -->
-      <div formGroupName="employee">
+      <div class="phone-input-group">
+        <!-- Master Agent Select -->
         <mat-form-field appearance="fill" class="input-field">
-          <mat-label>Employee</mat-label>
-          <mat-select formControlName="id">
-            <mat-option *ngFor="let employee of employeesList" [value]="employee.id">{{ employee.name }}</mat-option>
+          <mat-label>Master Agent</mat-label>
+          <mat-select formControlName="masterAgent">
+            <mat-option *ngFor="let agent of agentList" [value]="agent">{{ agent }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <!-- Distributor Select -->
+        <mat-form-field appearance="fill" class="input-field">
+          <mat-label>Distributor</mat-label>
+          <mat-select formControlName="distributor">
+            <mat-option *ngFor="let distributor of distributorList" [value]="distributor">{{ distributor }}</mat-option>
           </mat-select>
         </mat-form-field>
       </div>
+
+      <div class="phone-input-group">
+        <!-- Retailer Select -->
+        <mat-form-field appearance="fill" class="input-field">
+          <mat-label>Retailer</mat-label>
+          <mat-select formControlName="retailer">
+            <mat-option *ngFor="let retailer of retailerList" [value]="retailer">{{ retailer }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <!-- Employee Select -->
+        <div formGroupName="employee">
+          <mat-form-field appearance="fill" class="input-field">
+            <mat-label>Employee</mat-label>
+            <mat-select formControlName="id">
+              <mat-option *ngFor="let employee of employeesList" [value]="employee.id">{{ employee.name }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </div>
     </div>
 
-    <div class="form-actions">
-      <button mat-button (click)="resetReAssignForm()" type="button">Clear Form</button>
-      <button mat-raised-button color="primary" type="submit">Update Inventory</button>
-    </div>
+      <div class="form-actions">
+        <button mat-button (click)="resetReAssignForm()" type="button">Clear Form</button>
+        <button mat-raised-button color="primary" type="submit">Update Inventory</button>
+      </div>
+
   </form>
 
 </div>

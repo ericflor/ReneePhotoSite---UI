@@ -45,6 +45,16 @@ export class InventoryService {
     });
   }
 
+  updatePhonesBatch(phones: any[]): Observable<any> {
+    const headers = new HttpHeaders({
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${this.getAuthToken()}`,
+    });
+
+    return this.http.patch(`${this.apiUrl}/batch`, phones, { headers });
+}
+
+
   deletePhone(imei: string): Observable<any> {
     const headers = new HttpHeaders({
       Authorization: `Bearer ${this.getAuthToken()}`,
