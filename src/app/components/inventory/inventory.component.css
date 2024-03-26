@@ -120,4 +120,55 @@ mat-paginator {
   margin-top: 20px;
 }
 
+/* Export CSV/Excel Filters Section */
+.filter-export-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px; /* Adjusts spacing between filter elements */
+  padding: 20px;
+  width: 95%;
+}
+
+/* Style for filter row */
+.filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  width: 100%;
+  gap: 15px;
+}
+
+/* Style for the clear filters button */
+.clear-filters-button {
+  margin-bottom: 30px; /* Adds a bit of margin to the top of the button */
+  /* align-items: center; */
+}
+
+/* Container for export buttons to center them and add padding */
+.export-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 20px; /* Adds padding between buttons */
+}
+
+/* Export button styling for individual button */
+.export-buttons button {
+  min-width: 120px; /* Minimum width for buttons to ensure they look uniform */
+}
+
+@media (max-width: 992px) {
+  /* Adjustments for smaller screens */
+  .filter-row {
+    justify-content: center;
+  }
+
+  .filter-row .mat-form-field,
+  .filter-row button,
+  .export-buttons {
+    flex-basis: 100%; /* Stacks filter elements on smaller screens */
+  }
+}
+
+
 

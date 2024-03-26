@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Phone } from '../models/phone';
+import { PaginatedResponse } from '../models/paginatedResponse';
 
 @Injectable({
   providedIn: 'root',
@@ -52,8 +53,7 @@ export class InventoryService {
     });
 
     return this.http.patch(`${this.apiUrl}/batch`, phones, { headers });
-}
-
+  }
 
   deletePhone(imei: string): Observable<any> {
     const headers = new HttpHeaders({
@@ -73,9 +73,21 @@ export class InventoryService {
       Authorization: `Bearer ${this.getAuthToken()}`,
     });
 
-    const params = new HttpParams().set('size', '100000000');
+    const params = new HttpParams().set('page', '0').set('size', '1000000000');
 
     return this.http.get(this.apiUrl, { headers, params });
+  }
+
+  fetchAllInventory(): Observable<PaginatedResponse<Phone>> {
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${this.getAuthToken()}`,
+    });
+
+    const params = new HttpParams()
+      .set('page', '0')
+      .set('size', '1000000000'); // Set this to a value you're sure will cover all records
+
+    return this.http.get<PaginatedResponse<Phone>>(this.apiUrl, { headers, params });
   }
 
 }

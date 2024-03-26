@@ -1,5 +1,8 @@
 import * as Papa from 'papaparse';
 import * as XLSX from 'xlsx';
+import { Workbook } from 'exceljs';
+import * as FileSaver from 'file-saver';
+
 import {
   Component,
   OnInit,
@@ -30,6 +33,9 @@ export class InventoryComponent implements OnInit {
   agentList: string[] = [];
   distributorList: string[] = [];
   retailerList: string[] = [];
+  statusList: string[] = [];
+  typeList: string[] = [];
+  modelList: string[] = [];
   selectedFileName: string = '';
   parsedPhones: any[] = [];
   employeesList: Agency[] = [];
@@ -41,8 +47,9 @@ export class InventoryComponent implements OnInit {
     'masterAgent',
     'distributor',
     'retailer',
-    'date',
     'employee',
+    'date',
+    'age',
     'delete',
   ];
   totalElements = 0;
@@ -52,6 +59,13 @@ export class InventoryComponent implements OnInit {
   reAssignForm!: FormGroup;
   showForm: boolean = false;
   showTable: boolean = false;
+  selectedDistributor?: string;
+  selectedStatus?: string;
+  selectedType?: string;
+  selectedModel?: string;
+  selectedMasterAgent?: string;
+  selectedRetailer?: string;
+  selectedEmployee?: string;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild('fileInput') fileInput!: ElementRef;
@@ -179,6 +193,28 @@ export class InventoryComponent implements OnInit {
             phones
               .map((phone) => phone.retailer)
               .filter((retailer): retailer is string => !!retailer)
+          )
+        );
+        // Populate statusList, typeList, and modelList
+        this.statusList = Array.from(
+          new Set(
+            phones
+              .map((phone) => phone.status)
+              .filter((status): status is string => !!status)
+          )
+        );
+        this.typeList = Array.from(
+          new Set(
+            phones
+              .map((phone) => phone.type)
+              .filter((type): type is string => !!type)
+          )
+        );
+        this.modelList = Array.from(
+          new Set(
+            phones
+              .map((phone) => phone.model)
+              .filter((model): model is string => !!model)
           )
         );
       },
@@ -331,6 +367,14 @@ export class InventoryComponent implements OnInit {
     }
   }
 
+  calculateAge(dateString: string): number {
+    const today = new Date();
+    const phoneDate = new Date(dateString);
+    const diffTime = Math.abs(today.getTime() - phoneDate.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
+  }
+
   // --------------------------------------------- CSV/EXCEL ---------------------------------------------------- //
 
   handleFileInput(files: FileList) {
@@ -453,7 +497,6 @@ export class InventoryComponent implements OnInit {
     });
   }
 
-
   formatDate(dateString: string | number | Date) {
     const date = new Date(dateString);
     return date.toISOString();
@@ -482,15 +525,23 @@ export class InventoryComponent implements OnInit {
         },
         (error) => {
           console.error('Error adding phones', error);
-          this.snackBar.open('Error adding phones. Please try again.', 'Close', {
-            duration: 3000,
-          });
+          this.snackBar.open(
+            'Error adding phones. Please try again.',
+            'Close',
+            {
+              duration: 3000,
+            }
+          );
         }
       );
     } else {
-      this.snackBar.open('Please select a file to upload and process it first.', 'Close', {
-        duration: 3000,
-      });
+      this.snackBar.open(
+        'Please select a file to upload and process it first.',
+        'Close',
+        {
+          duration: 3000,
+        }
+      );
     }
   }
 
@@ -510,37 +561,162 @@ export class InventoryComponent implements OnInit {
         },
         (error) => {
           console.error('Error (re)assigning inventory', error);
-          this.snackBar.open('Error (re)assigning inventory. Please try again.', 'Close', {
-            duration: 3000,
-          });
+          this.snackBar.open(
+            'Error (re)assigning inventory. Please try again.',
+            'Close',
+            {
+              duration: 3000,
+            }
+          );
         }
       );
     } else {
-      this.snackBar.open('Please select a file to upload and process it first.', 'Close', {
-        duration: 3000,
-      });
+      this.snackBar.open(
+        'Please select a file to upload and process it first.',
+        'Close',
+        {
+          duration: 3000,
+        }
+      );
     }
   }
 
+  exportData(format: 'csv' | 'xlsx'): void {
+    this.inventoryService.fetchAllInventory().subscribe(
+      (response) => {
+        // Filter data based on selected parameters
+        const filteredData = response.content.filter((phone) => {
+          return (
+            (!this.selectedDistributor ||
+              phone.distributor === this.selectedDistributor) &&
+            (!this.selectedStatus || phone.status === this.selectedStatus) &&
+            (!this.selectedType || phone.type === this.selectedType) &&
+            (!this.selectedModel || phone.model === this.selectedModel) &&
+            (!this.selectedMasterAgent ||
+              phone.masterAgent === this.selectedMasterAgent) &&
+            (!this.selectedRetailer ||
+              phone.retailer === this.selectedRetailer) &&
+            (!this.selectedEmployee ||
+              phone.employee?.username === this.selectedEmployee)
+          );
+        });
+
+        // Prepare data for export
+        const dataToExport = this.formatDataForExport(filteredData);
+
+        if (format === 'csv') {
+          const csv = Papa.unparse(dataToExport);
+          const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+          FileSaver.saveAs(blob, `inventory_${new Date().toISOString()}.csv`);
+          this.snackBar.open('Downloading CSV file...', 'Close', {
+            duration: 3000,
+          });
+        } else if (format === 'xlsx') {
+          const wb = new Workbook();
+          const ws = wb.addWorksheet('Inventory');
+
+          ws.columns = [
+            { header: 'IMEI', key: 'imei', width: 20 },
+            { header: 'Status', key: 'status', width: 10 },
+            { header: 'Type', key: 'type', width: 15 },
+            { header: 'Model', key: 'model', width: 15 },
+            { header: 'Master Agent', key: 'masterAgent', width: 20 },
+            { header: 'Distributor', key: 'distributor', width: 20 },
+            { header: 'Retailer', key: 'retailer', width: 20 },
+            { header: 'Date', key: 'date', width: 15 },
+            { header: 'Age (Days)', key: 'age', width: 10 },
+            { header: 'Employee', key: 'employee', width: 20 },
+          ];
+
+          // Add data rows including the age for each phone
+          const dataWithAge = dataToExport.map((phone) => ({
+            ...phone,
+            date: phone.date ? this.formatDateForExport(phone.date) : 'N/A',
+            age: phone.date ? this.calculateAge(phone.date) : 'N/A', // Calculate the age here
+          }));
+          // Add data rows
+          ws.addRows(dataWithAge);
+
+          wb.xlsx.writeBuffer().then((buffer) => {
+            const blob = new Blob([buffer], {
+              type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            });
+            FileSaver.saveAs(
+              blob,
+              `inventory_${new Date().toISOString()}.xlsx`
+            );
+            this.snackBar.open('Downloading XLSX file...', 'Close', {
+              duration: 3000,
+            });
+          });
+        }
+      },
+      (error) => {
+        console.error('Error fetching full inventory:', error);
+        this.snackBar.open(
+          'Failed to export inventory. Please try again.',
+          'Close',
+          { duration: 3000 }
+        );
+      }
+    );
+  }
+
+  formatDataForExport(data: Phone[]): any[] {
+    return data.map((phone) => ({
+      imei: phone.imei ?? '',
+      status: phone.status ?? '',
+      type: phone.type ?? '',
+      model: phone.model ?? '',
+      masterAgent: phone.masterAgent ?? '',
+      distributor: phone.distributor ?? '',
+      retailer: phone.retailer ?? '',
+      date: phone.date ? this.formatDateForExport(phone.date) : 'N/A',
+      age: phone.date ? this.calculateAge(phone.date) : 'N/A', // Use 'N/A' if date is undefined
+      employee: phone.employee?.username ?? 'N/A', // Safe navigation with nullish coalescing
+    }));
+  }
+
+  // Helper function to format the date for export
+  formatDateForExport(dateString: string): string {
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    const seconds = date.getSeconds().toString().padStart(2, '0');
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+  }
+
+  clearFilters(): void {
+    this.selectedDistributor = undefined;
+    this.selectedStatus = undefined;
+    this.selectedType = undefined;
+    this.selectedModel = undefined;
+    this.selectedMasterAgent = undefined;
+    this.selectedRetailer = undefined;
+    this.selectedEmployee = undefined;
+  }
 }
-
-
 
 // MEETING NOTES
 
-// Inventory needs an input to load in an excel to batch upload phones to inventory
-// Batch upload from excel for assigning inventory as well
-// also want functionality to export excel sheet from inventory, or by specific parameters like everything for a specific employee, etc
+// Inventory needs an input to load in an excel to batch upload phones to inventory -> DONE!!!!!
+// Batch upload from excel for assigning inventory as well -> DONE!!!!!
+
+// also want functionality to export excel sheet from inventory,
+// or by specific parameters like everything for a specific employee, etc
 
 // Inventory needs a reporting tab -> (reference their website under Inventory report, used DNAA master agent as an example)
-// Used means units sold (will go through requirements for Sales flow later)
+// Used means units sold (will go through requirements for Sales flow later):
 // Free is how many you have in inventory
 // Removed is defective, manually took out
 // clicking on one of those should generate the report of that data
 
-// add in column or data point for age of phone while in inventory (Date now - date created)
+// add in column or data point for age of phone while in inventory (Date now minus date created) -> DONE!!!!!
 
-// PERMISIONS RULES: DO THIS FIRST!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+// PERMISIONS RULES: DO THIS FIRST!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -> DONE!!!!!
 
 // 1 - ADMIN - MASTER AGENT
 // 2 - Distributor
