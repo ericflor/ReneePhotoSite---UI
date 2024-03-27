@@ -706,7 +706,7 @@ export class InventoryComponent implements OnInit {
 // Batch upload from excel for assigning inventory as well -> DONE!!!!!
 
 // also want functionality to export excel sheet from inventory,
-// or by specific parameters like everything for a specific employee, etc
+// or by specific parameters like everything for a specific employee, etc -> DONE!!!!!
 
 // Inventory needs a reporting tab -> (reference their website under Inventory report, used DNAA master agent as an example)
 // Used means units sold (will go through requirements for Sales flow later):
@@ -727,3 +727,23 @@ export class InventoryComponent implements OnInit {
 // 3 transfer to 4
 // 4 cant use system
 // NO ONE can see anything else
+
+
+
+// SECOND MEETING NOTES:
+
+// IMEI FOR REASSIGN NEEDS TO BE A LARGE INPUT BOX IN ORDER TO SCAN IN NUMBERS FROM PHYSCIAL PHONE BOXES (20 PHONE BOXES PER ORDER BOX)
+// REFERENCE THEIR CURRENT SITE -> THERE'S A TEXT PROMPT THAT SAYS HOW MANY IMEI's ARE IN THE TEXT BOX READY TO ASSIGN
+// SHOULD THROW ERROR IF THE SYTEM TRIES TO ASSIGN INVENTORY BUT THE IMEIs AREN'T IN INVENTORY
+// CREATE COLUMNS THAT SHOW HOW MANY SUCCESFUL/UNSUCCESSFUL REASSIGNS HAPPENED -> REFERENCE THEIR CURRENT SITE
+
+// BREAK APART INVENTORY COMPONENT INTO UPLOAD, REASSIGN, REPORTS -> CALL IT WAREHOUSE WITH 3 TABS FOR EACH OF THOSE
+
+// REMOVE TYPE AND MODEL FROM EXCEL EXPORT
+
+// UPDATE PERMISSIONS, UI COMPONENTS SHOULD ONLY BE VISIBLE AT THE LEVEL OF PERMISSIONS INCLUDING ->
+// CURRENT LOGGED IN USER SHOULD ONLY SEE THEIR RECORDS FOR ORDERS, INVENTORY, AND AGENCIES
+// ONLY MASTER AGENT SHOULD BE ABLE TO SEE EVERYTHING
+
+
+// SHOULD BE READY TO DEPLOY NEXT MEETING (TUES OR WED) AFTER SIGNING THESE LAST ITEMS OFF
