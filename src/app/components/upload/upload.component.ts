@@ -2,7 +2,9 @@ import * as Papa from 'papaparse';
 import * as XLSX from 'xlsx';
 import { Workbook } from 'exceljs';
 import * as FileSaver from 'file-saver';
-
+import { Observable, forkJoin, of } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
+import { throwError } from 'rxjs';
 import {
   Component,
   OnInit,
@@ -23,11 +25,11 @@ import { Agency } from 'src/app/models/agency';
 import { AuthGuardService } from 'src/app/services/authGuard.service';
 
 @Component({
-  selector: 'app-inventory',
-  templateUrl: './inventory.component.html',
-  styleUrls: ['./inventory.component.css'],
+  selector: 'app-upload',
+  templateUrl: './upload.component.html',
+  styleUrls: ['./upload.component.css'],
 })
-export class InventoryComponent implements OnInit {
+export class UploadComponent implements OnInit {
   phones: Phone[] = [];
   imeiList: string[] = [];
   agentList: string[] = [];
@@ -106,7 +108,12 @@ export class InventoryComponent implements OnInit {
 
   get imeiCount(): number {
     // Split by new line and filter out empty lines
-    return this.reAssignForm.get('imeis')?.value.split('\n').filter((line: string) => line.trim()).length || 0;
+    return (
+      this.reAssignForm
+        .get('imeis')
+        ?.value.split('\n')
+        .filter((line: string) => line.trim()).length || 0
+    );
   }
 
   initReAssignFields(): FormGroup {
@@ -287,58 +294,68 @@ export class InventoryComponent implements OnInit {
     }
   }
 
-  submitReAssign(): void {
-    if (this.reAssignForm.valid) {
-      const formValues = this.reAssignForm.value;
-
-      // Parse the textarea content into an array of trimmed IMEIs
-      const imeis = formValues.imeis.split('\n').map((imei: string) => imei.trim()).filter((imei: any) => imei);
-
-      // Initialize a counter to keep track of processed IMEIs for feedback
-      let processedCount = 0;
-
-      // Generate a unique batch ID, e.g., using a timestamp
-      const batchId = new Date().getTime().toString();
-
-      // Loop through each IMEI to validate and update
-      imeis.forEach((imei: string) => {
-        const updatePayload = {
-          imei: imei,
-          ...(formValues.employee.id && { employee: formValues.employee }),
-        };
-
-        // Conditionally add other fields if they have values
-        if (formValues.masterAgent) updatePayload.masterAgent = formValues.masterAgent;
-        if (formValues.distributor) updatePayload.distributor = formValues.distributor;
-        if (formValues.retailer) updatePayload.retailer = formValues.retailer;
-
-        // Call the service method to update the phone details
-        this.inventoryService.updatePhone(imei, updatePayload).subscribe({
-          next: (response) => {
-            processedCount++;
-            console.log(`Update successful for IMEI: ${imei}`, response);
-            // Provide feedback when all IMEIs have been processed
-            if (processedCount === imeis.length) {
-              this.snackBar.open(`${processedCount} IMEI(s) updated successfully!`, 'Close', {
-                duration: 3000,
-              });
-              this.loadInventory(this.currentPage, this.pageSize);
-              this.reAssignForm.reset();
-            }
-          },
-          error: (error) => {
-            console.error(`Update failed for IMEI: ${imei}`, error);
-            this.snackBar.open(`Update failed for IMEI: ${imei}. Please try again.`, 'Close', {
-              duration: 9000,
-            });
-            this.loadInventory(this.currentPage, this.pageSize);
-            this.reAssignForm.reset();
-          },
-        });
-      });
+  deleteIMEIs(): void {
+    const imeis = this.reAssignForm
+      .get('imeis')
+      ?.value.split('\n')
+      .filter((imei: string) => imei.trim());
+    if (!imeis.length) {
+      this.snackBar.open(
+        'No IMEIs to remove. Please input some IMEIs.',
+        'Close',
+        { duration: 3000 }
+      );
+      return;
     }
-  }
 
+    const deletionObservables = imeis.map((imei: string) =>
+      this.inventoryService.deletePhone(imei.trim()).pipe(
+        map(() => ({ imei, success: true })),
+        catchError((error) => {
+          console.error(`Error deleting IMEI ${imei}:`, error);
+          return of({ imei, success: false });
+        })
+      )
+    );
+
+    forkJoin(deletionObservables).subscribe(
+      (results: any) => {
+        const typedResults: { imei: string; success: boolean }[] = results;
+        const failedIMEIs = typedResults
+          .filter((result) => !result.success)
+          .map((result) => result.imei);
+
+        if (failedIMEIs.length === 0) {
+          console.log('All IMEIs removed successfully');
+          this.snackBar.open('All IMEIs removed successfully', 'Close', {
+            duration: 3000,
+          });
+          this.reAssignForm.get('imeis')?.reset();
+          this.loadInventory(this.currentPage, this.pageSize);
+        } else {
+          console.log(
+            'Some IMEIs could not be removed:',
+            failedIMEIs.join(', ')
+          );
+          this.snackBar.open(
+            `Failed to remove some IMEIs: ${failedIMEIs.join(', ')}`,
+            'Close',
+            { duration: 5000 }
+          );
+          this.reAssignForm.get('imeis')?.setValue(failedIMEIs.join('\n'));
+          this.loadInventory(this.currentPage, this.pageSize);
+        }
+      },
+      (error) => {
+        console.error('Error during deletion process', error);
+        this.snackBar.open(
+          'An error occurred during the deletion process.',
+          'Close',
+          { duration: 3000 }
+        );
+      }
+    );
+  }
 
   deletePhone(imei: string): void {
     if (confirm('Are you sure you want to delete this phone?')) {
@@ -705,53 +722,3 @@ export class InventoryComponent implements OnInit {
     this.selectedEmployee = undefined;
   }
 }
-
-// MEETING NOTES
-
-// Inventory needs an input to load in an excel to batch upload phones to inventory -> DONE!!!!!
-// Batch upload from excel for assigning inventory as well -> DONE!!!!!
-
-// also want functionality to export excel sheet from inventory,
-// or by specific parameters like everything for a specific employee, etc -> DONE!!!!!
-
-// Inventory needs a reporting tab -> (reference their website under Inventory report, used DNAA master agent as an example)
-// Used means units sold (will go through requirements for Sales flow later):
-// Free is how many you have in inventory
-// Removed is defective, manually took out
-// clicking on one of those should generate the report of that data
-
-// add in column or data point for age of phone while in inventory (Date now minus date created) -> DONE!!!!!
-
-// PERMISIONS RULES: DO THIS FIRST!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -> DONE!!!!!
-
-// 1 - ADMIN - MASTER AGENT
-// 2 - Distributor
-// 3 - Retailer
-// 4 - Employee
-// 1 transfer anywhere
-// 2 transfer to 3 & 4
-// 3 transfer to 4
-// 4 cant use system
-// NO ONE can see anything else
-
-
-
-// SECOND MEETING NOTES:
-
-// IMEI FOR REASSIGN NEEDS TO BE A LARGE INPUT BOX IN ORDER TO SCAN IN NUMBERS FROM PHYSCIAL PHONE BOXES (20 PHONE BOXES PER ORDER BOX) -> DONE!!!!!
-// REFERENCE THEIR CURRENT SITE -> THERE'S A TEXT PROMPT THAT SAYS HOW MANY IMEI's ARE IN THE TEXT BOX READY TO ASSIGN -> DONE!!!!!
-// SHOULD THROW ERROR IF THE SYTEM TRIES TO ASSIGN INVENTORY BUT THE IMEIs AREN'T IN INVENTORY -> DONE!!!!!
-// CREATE COLUMNS THAT SHOW HOW MANY SUCCESFUL/UNSUCCESSFUL REASSIGNS HAPPENED -> REFERENCE THEIR CURRENT SITE -> DONE!!!!!
-
-// BREAK APART INVENTORY COMPONENT INTO UPLOAD, REASSIGN, REPORTS -> CALL IT WAREHOUSE WITH 3 TABS FOR EACH OF THOSE -> DONE!!!!!
-
-// REMOVE TYPE AND MODEL FROM EXCEL EXPORT -> DONE!!!!!
-
-// UPDATE PERMISSIONS, UI COMPONENTS SHOULD ONLY BE VISIBLE AT THE LEVEL OF PERMISSIONS INCLUDING ->
-// CURRENT LOGGED IN USER SHOULD ONLY SEE THEIR RECORDS FOR ORDERS, INVENTORY, AND AGENCIES
-// ONLY MASTER AGENT SHOULD BE ABLE TO SEE EVERYTHING
-
-// NEED AN AREA TO TAKE OUT INVENTORY FROM TOTAL WAREHOUSE BY BATCH -> PROBABLY SET THIS UP THE SAME AS ASSIGN WHERE THEY CAN
-// SCAN BOXES INTO A LARGE TEXT INPUT AND REMOVE ALL INVENTORY BY THAT IMEI LIST
-
-// SHOULD BE READY TO DEPLOY NEXT MEETING (TUES OR WED) AFTER SIGNING THESE LAST ITEMS OFF

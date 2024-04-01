@@ -1,0 +1,65 @@
+<div class="inventory-page-container">
+
+  <!-- Export CSV/Excel Filters -->
+  <div class="filter-export-section">
+    <h1 class="export-header">Reporting</h1>
+
+    <!-- Filters Row -->
+    <div class="filter-row">
+
+      <!-- Status Filter -->
+      <mat-form-field appearance="fill">
+        <mat-label>Status</mat-label>
+        <mat-select [value]="selectedStatus" (valueChange)="selectedStatus = $event">
+          <mat-option *ngFor="let status of statusList" [value]="status">{{ status }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <!-- Master Agent Filter -->
+      <mat-form-field appearance="fill">
+        <mat-label>Master Agent</mat-label>
+        <mat-select [value]="selectedMasterAgent" (valueChange)="selectedMasterAgent = $event">
+          <mat-option *ngFor="let masterAgent of agentList" [value]="masterAgent">{{ masterAgent }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <!-- Distributor Filter -->
+      <mat-form-field appearance="fill">
+        <mat-label>Distributor</mat-label>
+        <mat-select [value]="selectedDistributor" (valueChange)="selectedDistributor = $event">
+          <mat-option *ngFor="let distributor of distributorList" [value]="distributor">{{ distributor }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <!-- Retailer Filter -->
+      <mat-form-field appearance="fill">
+        <mat-label>Retailer</mat-label>
+        <mat-select [value]="selectedRetailer" (valueChange)="selectedRetailer = $event">
+          <mat-option *ngFor="let retailer of retailerList" [value]="retailer">{{ retailer }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <!-- Employee Filter -->
+      <mat-form-field appearance="fill">
+        <mat-label>Employee</mat-label>
+        <mat-select [value]="selectedEmployee" (valueChange)="selectedEmployee = $event">
+          <mat-option *ngFor="let employee of employeesList" [value]="employee.username">{{ employee.username }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <!-- Clear Filters Button -->
+      <button class="clear-filters-button" mat-raised-button color="accent" (click)="clearFilters()">Clear Filters</button>
+
+    </div>
+
+    <!-- Export Buttons -->
+    <div class="export-buttons">
+      <button mat-raised-button color="primary" (click)="exportData('csv')">Export as CSV</button>
+      <button mat-raised-button color="primary" (click)="exportData('xlsx')">Export as Excel</button>
+    </div>
+  </div>
+
+
+</div>
+

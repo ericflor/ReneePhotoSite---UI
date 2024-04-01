@@ -1,3 +1,33 @@
+/* Targets the remove section for styling */
+.remove-section .input-field-wide {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%; /* Use 100% width for responsiveness */
+}
+
+.remove-section .input-field-wide .mat-form-field {
+  width: 80%; /* Adjust the width of the input field */
+  max-width: 800px; /* Set a max-width for larger screens */
+}
+
+.remove-section button {
+  margin-top: 20px; /* Space between the textarea and button */
+  width: 200px; /* Adjust the width of the button */
+}
+
+/* Additional styling for the button to make it stand out */
+.remove-section button.mat-raised-button {
+  background-color: #d32f2f; /* Darker red for emphasis */
+  color: white; /* White text for contrast */
+}
+
+/* Hover effect for the button */
+.remove-section button.mat-raised-button:hover {
+  background-color: #b71c1c; /* Even darker red on hover */
+}
+
+
 /* General styling for the inventory page container */
 .inventory-page-container {
   display: flex;

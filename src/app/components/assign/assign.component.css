@@ -7,6 +7,31 @@
   margin: 0 auto;
 }
 
+/* Styling for the IMEI count display */
+.imei-count-display {
+  margin-bottom: 8px; /* Adjusts the space between the IMEI count and the textarea */
+  text-align: center; /* Centers the text, adjust as needed */
+  width: 100%; /* Ensures it spans the full width of its container */
+  font-weight: bold; /* Optional: makes the text bold */
+}
+
+/* Styles for links in the Uploaded Success column */
+.success-link {
+  color: green; /* Change to your preferred shade of green */
+  cursor: pointer; /* Changes the cursor to a pointer to indicate clickability */
+}
+
+/* Styles for links in the Uploaded Failure column */
+.failure-link {
+  color: red; /* Change to your preferred shade of red */
+  cursor: pointer; /* Changes the cursor to a pointer to indicate clickability */
+}
+
+/* Optional: Add hover effects to further indicate clickability */
+.success-link:hover, .failure-link:hover {
+  text-decoration: underline; /* Underlines the text on hover */
+}
+
 /* Styling for upload sections */
 .upload-section {
   width: 80%;

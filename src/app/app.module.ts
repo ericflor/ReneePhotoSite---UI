@@ -26,6 +26,9 @@ import { EditOrderFormComponent } from './components/edit-order-form/edit-order-
 import { MatDialogModule } from '@angular/material/dialog';
 import { CreateAgencyDialogComponent } from './components/create-agency-dialog/create-agency-dialog.component';
 import { EditAgencyDialogComponent } from './components/edit-agency-dialog/edit-agency-dialog.component';
+import { UploadComponent } from './components/upload/upload.component';
+import { AssignComponent } from './components/assign/assign.component';
+import { ReportsComponent } from './components/reports/reports.component';
 
 
 @NgModule({
@@ -40,7 +43,10 @@ import { EditAgencyDialogComponent } from './components/edit-agency-dialog/edit-
     AgencyComponent,
     EditOrderFormComponent,
     CreateAgencyDialogComponent,
-    EditAgencyDialogComponent  ],
+    EditAgencyDialogComponent,
+    UploadComponent,
+    AssignComponent,
+    ReportsComponent  ],
   imports: [
     BrowserModule,
     AppRoutingModule,

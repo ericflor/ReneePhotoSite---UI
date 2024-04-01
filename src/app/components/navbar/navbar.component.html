@@ -8,7 +8,15 @@
     <h1>Monopoly Solutions LLC</h1>
   </div> -->
   <div class="nav-links">
-    <a (click)="navigateTo('/inventory')">Inventory</a>
+    <!-- <a (click)="navigateTo('/inventory')">Inventory</a> -->
+    <div class="dropdown">
+      <button class="dropbtn">Warehouse</button>
+      <div class="dropdown-content">
+        <a (click)="navigateTo('/upload')">Upload/Remove</a>
+        <a (click)="navigateTo('/assign')">Assign</a>
+        <a (click)="navigateTo('/reports')">Reports</a>
+      </div>
+    </div>
     <a (click)="navigateTo('/orders')">Orders</a>
     <a (click)="navigateTo('/agencies')">Agencies</a>
     <div class="dropdown">

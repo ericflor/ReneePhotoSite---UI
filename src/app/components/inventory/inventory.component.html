@@ -82,17 +82,17 @@
 
 <!-- CSV/Excel Uploader for Batch (RE)Assign -->
 
-<div class="upload-section">
-  <!-- Hidden file input -->
+<!-- <div class="upload-section">
+
   <input type="file" #fileInput id="file" (change)="handleFileInputChange($event)" hidden
     accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" />
-  <!-- Upload button -->
+
   <button mat-raised-button (click)="openFileInput()">
     <mat-icon>file_upload</mat-icon> Upload CSV/Excel
   </button>
-  <!-- Drag and drop area -->
+
   <div class="drag-drop-box" (drop)="onDrop($event)" (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)">
-    <!-- <mat-icon class="upload-icon">cloud_upload</mat-icon> -->
+
     <p>Drag and drop your file here, or click the button above to select a file.</p>
   </div>
   <div *ngIf="selectedFileName" class="file-name-display">
@@ -101,7 +101,7 @@
   <button color="primary" mat-raised-button (click)="triggerReAssignUpload()">
     <mat-icon>cloud_upload</mat-icon> (Re)Assign Inventory
   </button>
-</div>
+</div> -->
 
 
 
@@ -112,11 +112,16 @@
 
       <!-- IMEI Select -->
       <mat-form-field appearance="fill" class="input-field">
+      <mat-label>IMEIs (one per line)</mat-label>
+      <textarea matInput formControlName="imeis" placeholder="Enter IMEIs, one per line" rows="10"></textarea>
+    </mat-form-field>
+    <p>{{ imeiCount }} IMEI(s) ready to reassign</p>
+      <!-- <mat-form-field appearance="fill" class="input-field">
         <mat-label>IMEI</mat-label>
         <mat-select formControlName="imei">
           <mat-option *ngFor="let imei of imeiList" [value]="imei">{{ imei }}</mat-option>
         </mat-select>
-      </mat-form-field>
+      </mat-form-field> -->
 
       <div class="phone-input-group">
         <!-- Master Agent Select -->
@@ -259,7 +264,7 @@
 
   <!-- Export CSV/Excel Filters -->
   <div class="filter-export-section">
-    <h1 class="export-header">Export CSV/Excel</h1>
+    <h1 class="export-header">Reporting</h1>
 
     <!-- Filters Row -->
     <div class="filter-row">

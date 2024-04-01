@@ -1,0 +1,120 @@
+<div *ngIf="!isEmployee" class="inventory-page-container">
+  <h1 class="table-header">Inventory Assign</h1>
+  <form [formGroup]="reAssignForm" (ngSubmit)="submitReAssign()" class="inventory-form">
+    <div class="phone-input-group">
+
+      <!-- IMEI Count Display -->
+      <p class="imei-count-display">{{ imeiCount }} IMEI(s) ready to assign</p>
+
+      <!-- IMEI Select -->
+      <mat-form-field appearance="fill" class="input-field">
+        <mat-label>IMEIs (one per line)</mat-label>
+        <textarea matInput formControlName="imeis" placeholder="Enter IMEIs, one per line" rows="10"></textarea>
+      </mat-form-field>
+
+
+      <div class="phone-input-group">
+        <!-- Master Agent Select -->
+        <mat-form-field appearance="fill" class="input-field">
+          <mat-label>Master Agent</mat-label>
+          <mat-select formControlName="masterAgent">
+            <mat-option *ngFor="let agent of agentList" [value]="agent">{{ agent }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <!-- Distributor Select -->
+        <mat-form-field appearance="fill" class="input-field">
+          <mat-label>Distributor</mat-label>
+          <mat-select formControlName="distributor">
+            <mat-option *ngFor="let distributor of distributorList" [value]="distributor">{{ distributor }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div class="phone-input-group">
+        <!-- Retailer Select -->
+        <mat-form-field appearance="fill" class="input-field">
+          <mat-label>Retailer</mat-label>
+          <mat-select formControlName="retailer">
+            <mat-option *ngFor="let retailer of retailerList" [value]="retailer">{{ retailer }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <!-- Employee Select -->
+        <div formGroupName="employee">
+          <mat-form-field appearance="fill" class="input-field">
+            <mat-label>Employee</mat-label>
+            <mat-select formControlName="id">
+              <mat-option *ngFor="let employee of employeesList" [value]="employee.id">{{ employee.name }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button mat-button (click)="resetReAssignForm()" type="button">Clear Form</button>
+      <button mat-raised-button color="primary" type="submit">Update Inventory</button>
+    </div>
+
+  </form>
+
+</div>
+
+
+<!-- Updated table to display BatchAssign records -->
+<div class="table-container">
+  <div class="mat-elevation-z8">
+    <h1 class="table-header">Batch Assign Records</h1>
+    <table mat-table [dataSource]="batchAssigns" class="mat-elevation-z8">
+
+      <!-- Column Definitions -->
+      <ng-container matColumnDef="batchCode">
+        <th mat-header-cell *matHeaderCellDef> Batch Code </th>
+        <td mat-cell *matCellDef="let element"> {{element.batchCode}} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="uploadedOn">
+        <th mat-header-cell *matHeaderCellDef> Uploaded On </th>
+        <td mat-cell *matCellDef="let element"> {{element.uploadedOn | date:'medium'}} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="uploadedBy">
+        <th mat-header-cell *matHeaderCellDef> Uploaded By </th>
+        <td mat-cell *matCellDef="let element"> {{element.uploadedBy}} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="assignedTo">
+        <th mat-header-cell *matHeaderCellDef> Assigned To </th>
+        <td mat-cell *matCellDef="let element"> {{element.assignedTo}} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="totalRecords">
+        <th mat-header-cell *matHeaderCellDef> Total Records </th>
+        <td mat-cell *matCellDef="let element"> {{element.totalRecords}} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="uploadedSuccess">
+        <th mat-header-cell *matHeaderCellDef> Uploaded Success </th>
+        <td mat-cell *matCellDef="let element">
+          <a (click)="downloadReport(element.id, 'success')" class="success-link">{{element.uploadedSuccess}}</a>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="uploadedFailure">
+        <th mat-header-cell *matHeaderCellDef> Uploaded Failure </th>
+        <td mat-cell *matCellDef="let element">
+          <a (click)="downloadReport(element.id, 'failure')" class="failure-link">{{element.uploadedFailure}}</a>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+
+    <mat-paginator [length]="totalElements" [pageSize]="pageSize" [pageSizeOptions]="[5, 10, 20]"
+      (page)="changePage($event)">
+    </mat-paginator>
+  </div>
+</div>
+

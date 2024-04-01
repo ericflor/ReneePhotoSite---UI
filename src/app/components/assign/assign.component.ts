@@ -2,32 +2,31 @@ import * as Papa from 'papaparse';
 import * as XLSX from 'xlsx';
 import { Workbook } from 'exceljs';
 import * as FileSaver from 'file-saver';
-
-import {
-  Component,
-  OnInit,
-  ViewChild,
-  ChangeDetectorRef,
-  ElementRef,
-} from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { MatSnackBar as MatSnackBar } from '@angular/material/snack-bar';
 import { InventoryService } from 'src/app/services/inventory.service';
-import { AgencyService } from 'src/app/services/agency.service';
 import {
   MatPaginator as MatPaginator,
   PageEvent as PageEvent,
 } from '@angular/material/paginator';
 import { Phone } from 'src/app/models/phone';
-import { FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Agency } from 'src/app/models/agency';
 import { AuthGuardService } from 'src/app/services/authGuard.service';
+import { BatchAssign } from 'src/app/models/batchAssign';
+import { BatchAssignService } from 'src/app/services/batchAssign.service';
+import { Observable, forkJoin, of } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
+import { UpdatePhoneResponse } from 'src/app/models/updatePhoneResponse';
+import { AgencyService } from 'src/app/services/agency.service';
+import { BatchAssignCreateRequest } from 'src/app/models/batchAssignCreateRequest';
 
 @Component({
-  selector: 'app-inventory',
-  templateUrl: './inventory.component.html',
-  styleUrls: ['./inventory.component.css'],
+  selector: 'app-assign',
+  templateUrl: './assign.component.html',
+  styleUrls: ['./assign.component.css'],
 })
-export class InventoryComponent implements OnInit {
+export class AssignComponent implements OnInit {
   phones: Phone[] = [];
   imeiList: string[] = [];
   agentList: string[] = [];
@@ -39,19 +38,6 @@ export class InventoryComponent implements OnInit {
   selectedFileName: string = '';
   parsedPhones: any[] = [];
   employeesList: Agency[] = [];
-  displayedColumns: string[] = [
-    'imei',
-    'status',
-    'type',
-    'model',
-    'masterAgent',
-    'distributor',
-    'retailer',
-    'employee',
-    'date',
-    'age',
-    'delete',
-  ];
   totalElements = 0;
   pageSize = 10;
   currentPage = 0;
@@ -66,6 +52,17 @@ export class InventoryComponent implements OnInit {
   selectedMasterAgent?: string;
   selectedRetailer?: string;
   selectedEmployee?: string;
+  assignedTo?: string;
+  batchAssigns: BatchAssign[] = [];
+  displayedColumns: string[] = [
+    'batchCode',
+    'uploadedOn',
+    'uploadedBy',
+    'assignedTo',
+    'totalRecords',
+    'uploadedSuccess',
+    'uploadedFailure',
+  ];
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild('fileInput') fileInput!: ElementRef;
@@ -73,19 +70,48 @@ export class InventoryComponent implements OnInit {
   constructor(
     private authService: AuthGuardService,
     private inventoryService: InventoryService,
-    private agencyService: AgencyService,
     private fb: FormBuilder,
+    private batchAssignService: BatchAssignService,
+    private agencyService: AgencyService,
     private snackBar: MatSnackBar
   ) {
-    this.addPhoneForm = this.fb.group({
-      phones: this.fb.array([this.initPhoneFields()]),
-    });
-
     this.reAssignForm = this.initReAssignFields();
   }
 
   ngOnInit(): void {
+    this.loadBatchAssignRecords(this.currentPage, this.pageSize);
     this.loadInventory(this.currentPage, this.pageSize);
+  }
+
+  loadBatchAssignRecords(page: number, size: number): void {
+    this.employeesList = this.fetchAllAgencies();
+    this.batchAssignService.getAllBatchAssigns(page, size).subscribe({
+      next: (data) => {
+        this.batchAssigns = data.content.map((batchAssign: BatchAssign) => {
+          // Check if assignedTo is an employee ID
+          if (this.isNumeric(batchAssign.assignedTo)) {
+            const employee = this.employeesList.find(
+              (e) => e.id === Number(batchAssign.assignedTo)
+            );
+            if (employee) {
+              console.log("EMPLOYEE: " + employee.name)
+              return { ...batchAssign, assignedTo: employee.name };
+            }
+          }
+          // If not an ID, or no matching employee found, return as-is
+          return batchAssign;
+        });
+        this.totalElements = data.totalElements;
+      },
+      error: (error) => {
+        console.error('Error fetching batch assigns:', error);
+      },
+    });
+  }
+
+  // Utility function to check if a value is numeric
+  isNumeric(value: any): boolean {
+    return !isNaN(value) && !isNaN(parseFloat(value));
   }
 
   // If logged in user is employee, they should only be able to see the table
@@ -93,20 +119,14 @@ export class InventoryComponent implements OnInit {
     return this.authService.hasRole('ROLE_EMPLOYEE');
   }
 
-  initPhoneFields(): FormGroup {
-    return this.fb.group({
-      imei: ['', Validators.required],
-      type: ['', Validators.required],
-      model: ['', Validators.required],
-      masterAgent: [''], // Optional field
-      distributor: [''], // Optional field
-      retailer: [''], // Optional field
-    });
-  }
-
   get imeiCount(): number {
     // Split by new line and filter out empty lines
-    return this.reAssignForm.get('imeis')?.value.split('\n').filter((line: string) => line.trim()).length || 0;
+    return (
+      this.reAssignForm
+        .get('imeis')
+        ?.value.split('\n')
+        .filter((line: string) => line.trim()).length || 0
+    );
   }
 
   initReAssignFields(): FormGroup {
@@ -124,7 +144,7 @@ export class InventoryComponent implements OnInit {
   resetReAssignForm(): void {
     // Resets the form fields to empty values or initial state
     this.reAssignForm.reset({
-      imei: '', // Resetting to empty or initial value
+      imeis: '', // Resetting to empty or initial value
       masterAgent: '',
       distributor: '',
       retailer: '',
@@ -132,18 +152,141 @@ export class InventoryComponent implements OnInit {
     });
   }
 
-  addNewPhoneInput(): void {
-    const control = <FormArray>this.addPhoneForm.get('phones');
-    control.push(this.initPhoneFields());
+  changePage(event: PageEvent): void {
+    this.loadBatchAssignRecords(event.pageIndex, event.pageSize);
   }
 
-  removePhoneInput(index: number): void {
-    const control = <FormArray>this.addPhoneForm.get('phones');
-    control.removeAt(index);
-  }
+  submitReAssign(): void {
+    if (this.reAssignForm.valid) {
+      const formValues = this.reAssignForm.value;
+      const imeis = formValues.imeis
+        .split('\n')
+        .map((imei: string) => imei.trim())
+        .filter((imei: any) => imei);
+      const totalRecords = imeis.length;
 
-  get phonesFormArray(): FormArray {
-    return this.addPhoneForm.get('phones') as FormArray;
+      let outcomes: boolean[] = []; // This array will track the success/failure of each IMEI
+
+      let requests: Observable<UpdatePhoneResponse>[] = imeis.map(
+        (imei: string) => {
+
+          const updatePayload = {
+            imei,
+            ...(formValues.masterAgent && {
+              masterAgent: formValues.masterAgent,
+            }),
+            ...(formValues.distributor && {
+              distributor: formValues.distributor,
+            }),
+            ...(formValues.retailer && {
+              retailer: formValues.retailer,
+            }),
+            ...(formValues.employee?.id && {
+              employee: { id: formValues.employee.id }, // Adjusted for correct structure
+            }),
+          };
+
+          return this.inventoryService.updatePhone(imei, updatePayload).pipe(
+            map((response) => {
+              console.log("UPDATE PHONE PAYLOAD: " + updatePayload)
+              outcomes.push(true); // Success
+              return { success: true, imei };
+            }),
+            catchError((error) => {
+              outcomes.push(false); // Failure
+              return of({ success: false, imei });
+            })
+          );
+        }
+      );
+
+      forkJoin(requests).subscribe((results) => {
+        const uploadedSuccess = outcomes.filter((success) => success).length;
+        const uploadedFailure = totalRecords - uploadedSuccess;
+
+        // Overall success feedback
+        if (uploadedSuccess > 0) {
+          this.snackBar.open(
+            `${uploadedSuccess} out of ${totalRecords} records updated successfully!`,
+            'Close',
+            {
+              duration: 3000,
+            }
+          );
+        }
+
+        // Failure feedback
+        if (uploadedFailure > 0) {
+          this.snackBar.open(
+            `${uploadedFailure} out of ${totalRecords} records failed to update.`,
+            'Close',
+            {
+              duration: 3000,
+            }
+          );
+        }
+
+        // Determine the assignedTo value based on the filled form controls
+        const assignedToValues = [
+          formValues.masterAgent,
+          formValues.distributor,
+          formValues.retailer,
+          formValues.employee.id,
+        ].filter((v) => v);
+        this.assignedTo =
+          assignedToValues.length > 0 ? assignedToValues[0] : undefined;
+
+        const batchAssignCreateRequest: BatchAssignCreateRequest = {
+          batchAssign: {
+            assignedTo: this.assignedTo, // Set this from formValues accordingly
+            totalRecords,
+            uploadedSuccess,
+            uploadedFailure,
+          },
+          imeis, // IMEI list
+          outcomes, // Success/failure outcomes for each IMEI
+        };
+
+        this.batchAssignService
+          .createBatchAssign(batchAssignCreateRequest)
+          .subscribe({
+            next: (updatedBatch: any) => {
+              console.log('Batch updated successfully', updatedBatch);
+              // Success feedback for the batch record creation
+              this.snackBar.open(
+                'Batch assign record created successfully!',
+                'Close',
+                {
+                  duration: 3000,
+                }
+              );
+              // After successfully creating a new BatchAssign, refresh the records table and form
+              this.loadBatchAssignRecords(0, this.pageSize);
+              this.resetReAssignForm();
+            },
+            error: (error: any) => {
+              console.error('Error updating batch', error);
+              // Failure feedback for the batch record creation
+              this.snackBar.open(
+                'Error creating batch assign record. Please try again.',
+                'Close',
+                {
+                  duration: 3000,
+                }
+              );
+            },
+          });
+      });
+    } else {
+      // Form validation failure feedback
+      this.snackBar.open(
+        'Form is not valid. Please check the inputs and try again.',
+        'Close',
+        {
+          duration: 3000,
+        }
+      );
+    }
   }
 
   loadInventory(page: number, size: number): void {
@@ -165,6 +308,29 @@ export class InventoryComponent implements OnInit {
         console.error('Error fetching inventory:', error);
       }
     );
+  }
+
+  fetchAllAgencies(): Agency[] {
+    this.agencyService.getAllAgencies(0, 100000000).subscribe(
+      (response) => {
+        const agencies = response.content;
+
+        // Map over agencies to create a unique list based on ID
+        const uniqueAgencies = new Map<number, Agency>();
+        agencies.forEach((agency: Agency) => {
+          if (agency && !uniqueAgencies.has(agency.id!)) {
+            uniqueAgencies.set(agency.id!, agency);
+          }
+        });
+
+        this.employeesList = Array.from(uniqueAgencies.values());
+        console.log('AGENCIES LIST:', this.employeesList);
+      },
+      (error) => {
+        console.error('Error fetching agencies:', error);
+      }
+    );
+    return this.employeesList;
   }
 
   loadDropdownData(): void {
@@ -227,158 +393,6 @@ export class InventoryComponent implements OnInit {
         console.error('Error fetching phones for dropdowns:', error);
       }
     );
-  }
-
-  fetchAllAgencies(): void {
-    this.agencyService.getAllAgencies(0, 100000000).subscribe(
-      (response) => {
-        const agencies = response.content;
-
-        // Map over agencies to create a unique list based on ID
-        const uniqueAgencies = new Map<number, Agency>();
-        agencies.forEach((agency: Agency) => {
-          if (agency && !uniqueAgencies.has(agency.id!)) {
-            uniqueAgencies.set(agency.id!, agency);
-          }
-        });
-
-        this.employeesList = Array.from(uniqueAgencies.values());
-        console.log('AGENCIES LIST:', this.employeesList);
-      },
-      (error) => {
-        console.error('Error fetching agencies:', error);
-      }
-    );
-  }
-
-  changePage(event: PageEvent): void {
-    this.loadInventory(event.pageIndex, event.pageSize);
-  }
-
-  resetForm(): void {
-    // Resets the form to its initial state, optionally clearing the form array
-    while ((this.addPhoneForm.get('phones') as FormArray).length !== 0) {
-      (this.addPhoneForm.get('phones') as FormArray).removeAt(0);
-    }
-    (this.addPhoneForm.get('phones') as FormArray).push(this.initPhoneFields());
-  }
-
-  submitPhones(): void {
-    if (this.addPhoneForm.valid) {
-      const phones = this.addPhoneForm.value.phones;
-      this.inventoryService.addPhonesBatch(phones).subscribe(
-        (data) => {
-          console.log('Phones added successfully', data);
-          this.loadInventory(this.currentPage, this.pageSize);
-          this.addPhoneForm.reset();
-          this.snackBar.open('Phones added successfully!', 'Close', {
-            duration: 3000,
-          });
-        },
-        (error) => {
-          console.error('Error adding phones', error);
-          this.snackBar.open(
-            'Error adding phones. Please try again.',
-            'Close',
-            { duration: 3000 }
-          );
-        }
-      );
-    }
-  }
-
-  submitReAssign(): void {
-    if (this.reAssignForm.valid) {
-      const formValues = this.reAssignForm.value;
-
-      // Parse the textarea content into an array of trimmed IMEIs
-      const imeis = formValues.imeis.split('\n').map((imei: string) => imei.trim()).filter((imei: any) => imei);
-
-      // Initialize a counter to keep track of processed IMEIs for feedback
-      let processedCount = 0;
-
-      // Generate a unique batch ID, e.g., using a timestamp
-      const batchId = new Date().getTime().toString();
-
-      // Loop through each IMEI to validate and update
-      imeis.forEach((imei: string) => {
-        const updatePayload = {
-          imei: imei,
-          ...(formValues.employee.id && { employee: formValues.employee }),
-        };
-
-        // Conditionally add other fields if they have values
-        if (formValues.masterAgent) updatePayload.masterAgent = formValues.masterAgent;
-        if (formValues.distributor) updatePayload.distributor = formValues.distributor;
-        if (formValues.retailer) updatePayload.retailer = formValues.retailer;
-
-        // Call the service method to update the phone details
-        this.inventoryService.updatePhone(imei, updatePayload).subscribe({
-          next: (response) => {
-            processedCount++;
-            console.log(`Update successful for IMEI: ${imei}`, response);
-            // Provide feedback when all IMEIs have been processed
-            if (processedCount === imeis.length) {
-              this.snackBar.open(`${processedCount} IMEI(s) updated successfully!`, 'Close', {
-                duration: 3000,
-              });
-              this.loadInventory(this.currentPage, this.pageSize);
-              this.reAssignForm.reset();
-            }
-          },
-          error: (error) => {
-            console.error(`Update failed for IMEI: ${imei}`, error);
-            this.snackBar.open(`Update failed for IMEI: ${imei}. Please try again.`, 'Close', {
-              duration: 9000,
-            });
-            this.loadInventory(this.currentPage, this.pageSize);
-            this.reAssignForm.reset();
-          },
-        });
-      });
-    }
-  }
-
-
-  deletePhone(imei: string): void {
-    if (confirm('Are you sure you want to delete this phone?')) {
-      this.inventoryService.deletePhone(imei).subscribe({
-        next: () => {
-          this.snackBar.open('Phone deleted successfully', 'Close', {
-            duration: 3000,
-          });
-          this.loadInventory(this.currentPage, this.pageSize); // Refresh the list
-        },
-        error: (error) => {
-          console.error('There was an error!', error);
-          let errorMessage = 'Failed to delete phone. Please try again later.';
-          if (error.error) {
-            errorMessage =
-              error.error.message ||
-              'Failed to delete phone. You do not have the necessary permissions to perform this action.';
-          }
-          this.snackBar.open(errorMessage, 'Close', {
-            duration: 3000,
-          });
-        },
-      });
-    }
-  }
-
-  removeLastPhoneInput(): void {
-    const control = <FormArray>this.addPhoneForm.get('phones');
-    if (control.length > 1) {
-      // Ensure at least one input remains
-      control.removeAt(control.length - 1);
-    }
-  }
-
-  calculateAge(dateString: string): number {
-    const today = new Date();
-    const phoneDate = new Date(dateString);
-    const diffTime = Math.abs(today.getTime() - phoneDate.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays;
   }
 
   // --------------------------------------------- CSV/EXCEL ---------------------------------------------------- //
@@ -638,7 +652,6 @@ export class InventoryComponent implements OnInit {
           const dataWithAge = dataToExport.map((phone) => ({
             ...phone,
             date: phone.date ? this.formatDateForExport(phone.date) : 'N/A',
-            age: phone.date ? this.calculateAge(phone.date) : 'N/A', // Calculate the age here
           }));
           // Add data rows
           ws.addRows(dataWithAge);
@@ -671,15 +684,6 @@ export class InventoryComponent implements OnInit {
   formatDataForExport(data: Phone[]): any[] {
     return data.map((phone) => ({
       imei: phone.imei ?? '',
-      status: phone.status ?? '',
-      type: phone.type ?? '',
-      model: phone.model ?? '',
-      masterAgent: phone.masterAgent ?? '',
-      distributor: phone.distributor ?? '',
-      retailer: phone.retailer ?? '',
-      date: phone.date ? this.formatDateForExport(phone.date) : 'N/A',
-      age: phone.date ? this.calculateAge(phone.date) : 'N/A', // Use 'N/A' if date is undefined
-      employee: phone.employee?.username ?? 'N/A', // Safe navigation with nullish coalescing
     }));
   }
 
@@ -695,63 +699,41 @@ export class InventoryComponent implements OnInit {
     return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
   }
 
-  clearFilters(): void {
-    this.selectedDistributor = undefined;
-    this.selectedStatus = undefined;
-    this.selectedType = undefined;
-    this.selectedModel = undefined;
-    this.selectedMasterAgent = undefined;
-    this.selectedRetailer = undefined;
-    this.selectedEmployee = undefined;
+  downloadReport(batchAssignId: number, type: 'success' | 'failure'): void {
+    this.batchAssignService.getBatchAssignById(batchAssignId).subscribe({
+      next: (batchAssign) => {
+        const filteredDetails = batchAssign.details?.filter((detail) => (type === 'success' ? detail.success : !detail.success)) ?? [];
+        this.generateExcelReport(filteredDetails, batchAssign.assignedTo ?? '', batchAssignId, type);
+      },
+      error: (error) => {
+        console.error('Error fetching batch assign details:', error);
+      },
+    });
   }
+
+
+  generateExcelReport(details: any[], assignedTo: string, batchAssignId: number, type: 'success' | 'failure'): void {
+    const workbook = new Workbook();
+    const worksheet = workbook.addWorksheet('Batch Assign Report');
+
+    // Define columns
+    worksheet.columns = [
+      { header: 'IMEI', key: 'imei', width: 20 },
+      { header: 'Assigned To', key: 'assignedTo', width: 30 },
+    ];
+
+    // Add rows
+    details.forEach((detail) => {
+      worksheet.addRow({ imei: detail.imei, assignedTo });
+    });
+
+    // Write to buffer and save as Excel file
+    workbook.xlsx.writeBuffer().then((buffer) => {
+      const blob = new Blob([buffer], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      });
+      FileSaver.saveAs(blob, `batch_assign_report_${batchAssignId}_${type}_${new Date().toISOString()}.xlsx`);
+    });
+  }
+
 }
-
-// MEETING NOTES
-
-// Inventory needs an input to load in an excel to batch upload phones to inventory -> DONE!!!!!
-// Batch upload from excel for assigning inventory as well -> DONE!!!!!
-
-// also want functionality to export excel sheet from inventory,
-// or by specific parameters like everything for a specific employee, etc -> DONE!!!!!
-
-// Inventory needs a reporting tab -> (reference their website under Inventory report, used DNAA master agent as an example)
-// Used means units sold (will go through requirements for Sales flow later):
-// Free is how many you have in inventory
-// Removed is defective, manually took out
-// clicking on one of those should generate the report of that data
-
-// add in column or data point for age of phone while in inventory (Date now minus date created) -> DONE!!!!!
-
-// PERMISIONS RULES: DO THIS FIRST!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -> DONE!!!!!
-
-// 1 - ADMIN - MASTER AGENT
-// 2 - Distributor
-// 3 - Retailer
-// 4 - Employee
-// 1 transfer anywhere
-// 2 transfer to 3 & 4
-// 3 transfer to 4
-// 4 cant use system
-// NO ONE can see anything else
-
-
-
-// SECOND MEETING NOTES:
-
-// IMEI FOR REASSIGN NEEDS TO BE A LARGE INPUT BOX IN ORDER TO SCAN IN NUMBERS FROM PHYSCIAL PHONE BOXES (20 PHONE BOXES PER ORDER BOX) -> DONE!!!!!
-// REFERENCE THEIR CURRENT SITE -> THERE'S A TEXT PROMPT THAT SAYS HOW MANY IMEI's ARE IN THE TEXT BOX READY TO ASSIGN -> DONE!!!!!
-// SHOULD THROW ERROR IF THE SYTEM TRIES TO ASSIGN INVENTORY BUT THE IMEIs AREN'T IN INVENTORY -> DONE!!!!!
-// CREATE COLUMNS THAT SHOW HOW MANY SUCCESFUL/UNSUCCESSFUL REASSIGNS HAPPENED -> REFERENCE THEIR CURRENT SITE -> DONE!!!!!
-
-// BREAK APART INVENTORY COMPONENT INTO UPLOAD, REASSIGN, REPORTS -> CALL IT WAREHOUSE WITH 3 TABS FOR EACH OF THOSE -> DONE!!!!!
-
-// REMOVE TYPE AND MODEL FROM EXCEL EXPORT -> DONE!!!!!
-
-// UPDATE PERMISSIONS, UI COMPONENTS SHOULD ONLY BE VISIBLE AT THE LEVEL OF PERMISSIONS INCLUDING ->
-// CURRENT LOGGED IN USER SHOULD ONLY SEE THEIR RECORDS FOR ORDERS, INVENTORY, AND AGENCIES
-// ONLY MASTER AGENT SHOULD BE ABLE TO SEE EVERYTHING
-
-// NEED AN AREA TO TAKE OUT INVENTORY FROM TOTAL WAREHOUSE BY BATCH -> PROBABLY SET THIS UP THE SAME AS ASSIGN WHERE THEY CAN
-// SCAN BOXES INTO A LARGE TEXT INPUT AND REMOVE ALL INVENTORY BY THAT IMEI LIST
-
-// SHOULD BE READY TO DEPLOY NEXT MEETING (TUES OR WED) AFTER SIGNING THESE LAST ITEMS OFF

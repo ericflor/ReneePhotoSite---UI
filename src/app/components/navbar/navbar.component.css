@@ -2,28 +2,38 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: rgb(74, 146, 131); /* Sage color */
+  background-color: #2C3E50; /* Darker shade for a sleek look */
   color: white;
   padding: 10px 20px;
 }
 
-.navbar-h1 {
-  display: flex;
-  justify-content: center;
-  align-items: center;
+.navbar-logo {
+  height: 40px;
+  width: auto; /* Maintain aspect ratio */
+  margin-right: 15px; /* Adjusted margin for logo spacing */
 }
 
 .nav-title a {
   color: white;
-  font-size: 24px;
+  font-size: 20px; /* Adjusted for a sleeker look */
   text-decoration: none;
 }
 
-.nav-links a {
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 20px; /* Provides uniform spacing between links and dropdowns */
+}
+
+.nav-links a, .dropbtn {
   color: white;
-  margin-right: 20px;
   text-decoration: none;
   cursor: pointer;
+  padding: 8px 15px; /* Uniform padding for a sleek appearance */
+  font-size: 16px; /* Font size adjusted for modern look */
+  background-color: transparent; /* Transparent background for a modern, sleek look */
+  border: none;
+  outline: none;
 }
 
 .dropdown {
@@ -31,100 +41,37 @@
   display: inline-block;
 }
 
-.dropbtn {
-  background-color: #F5F5DC; /* Light oatmeal color */
-  color: black;
-  padding: 10px;
-  font-size: 16px;
-  border: none;
-  cursor: pointer;
-}
-
 .dropdown-content {
   display: none;
   position: absolute;
   right: 0;
-  background-color: #F5F5DC; /* Light oatmeal color */
+  background-color: #34495E; /* Darker background for dropdown for modern look */
   min-width: 160px;
-  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.2);
   z-index: 1;
 }
 
 .dropdown-content a {
-  color: black;
+  color: white;
   padding: 12px 16px;
   text-decoration: none;
   display: block;
 }
 
-.navbar-logo {
-  height: 40px;
-  width: auto; /* Keep the aspect ratio */
-  margin-right: 10px; /* Add some space between the logo and the title */
+.dropdown-content a:hover {
+  background-color: #5D6D7E; /* Lighter shade for hover effect */
 }
 
-
-.dropdown-content a:hover {background-color: #f1f1f1}
-
-.dropdown:hover .dropdown-content {display: block;}
-.dropdown:hover .dropbtn {background-color: #555;}
-
-
-/* CSV/Excel uploader */
-.inventory-page-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
+.dropdown:hover .dropdown-content {
+  display: block;
 }
 
-.upload-section {
-  margin-top: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  width: 80%; /* Adjust this value as needed */
-  padding: 20px;
-  margin: 20px auto; /* This centers the section horizontally */
-  border: 2px dashed #ccc;
-  box-sizing: border-box; /* Ensures padding doesn't add to the width */
+.dropdown:hover .dropbtn {
+  background-color: #2C3E50; /* Background color on hover for the button */
 }
 
-.drag-drop-box {
-  width: 100%; /* Ensures it fills the parent .upload-section */
-  text-align: center;
-  margin: 20px 0;
-  padding: 20px;
+/* Hover effect for dropdown button and links for visual feedback */
+.dropbtn:hover, .nav-links a:hover {
+  background-color: #1A252F; /* Slightly lighter than navbar for distinction */
+  border-radius: 5px; /* Rounded corners for a modern touch */
 }
-
-button {
-  background-color: #007bff;
-  color: white;
-  padding: 10px 20px;
-  margin-top: 10px;
-  border: none;
-  cursor: pointer;
-  display: block; /* Changed to block for centering */
-}
-
-button:hover {
-  background-color: #0056b3;
-}
-
-button mat-icon {
-  margin-right: 8px;
-}
-
-.upload-icon {
-  font-size: 48px;
-  margin-bottom: 20px;
-}
-
-.file-name-display {
-  margin-top: 10px;
-  margin-bottom: 10px;
-  font-style: italic;
-}
-
-

@@ -1,0 +1,181 @@
+<div class="inventory-page-container">
+
+  <h1 *ngIf="!isEmployee" class="table-header">Add New Devices</h1>
+  <div class="upload-section">
+    <!-- Hidden file input -->
+    <input type="file" #fileInput id="file" (change)="handleFileInputChange($event)" hidden
+      accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" />
+    <!-- Upload button -->
+    <button mat-raised-button (click)="openFileInput()">
+      <mat-icon>file_upload</mat-icon> Upload CSV/Excel
+    </button>
+    <!-- Drag and drop area -->
+    <div class="drag-drop-box" (drop)="onDrop($event)" (dragover)="onDragOver($event)"
+      (dragleave)="onDragLeave($event)">
+      <!-- <mat-icon class="upload-icon">cloud_upload</mat-icon> -->
+      <p>Drag and drop your file here, or click the button above to select a file.</p>
+    </div>
+    <div *ngIf="selectedFileName" class="file-name-display">
+      Selected file: {{selectedFileName}}
+    </div>
+    <button color="primary" mat-raised-button (click)="triggerUpload()">
+      <mat-icon>cloud_upload</mat-icon> Add Devices
+    </button>
+  </div>
+
+
+  <!-- <form *ngIf="!isEmployee" [formGroup]="addPhoneForm" (ngSubmit)="submitPhones()" class="inventory-form">
+    <div formArrayName="phones">
+      <div *ngFor="let phone of phonesFormArray.controls; let i = index" [formGroupName]="i" class="phone-input-group">
+
+        <mat-form-field appearance="fill" class="input-field">
+          <mat-label>IMEI</mat-label>
+          <input matInput formControlName="imei">
+        </mat-form-field>
+
+
+        <mat-form-field appearance="fill" class="input-field">
+          <mat-label>Type</mat-label>
+          <input matInput formControlName="type">
+        </mat-form-field>
+
+        <mat-form-field appearance="fill" class="input-field">
+          <mat-label>Model</mat-label>
+          <input matInput formControlName="model">
+        </mat-form-field>
+
+        <div class="additional-fields">
+          <mat-form-field appearance="fill" class="input-field">
+            <mat-label>Master Agent</mat-label>
+            <input matInput formControlName="masterAgent">
+          </mat-form-field>
+          <mat-form-field appearance="fill" class="input-field">
+            <mat-label>Distributor</mat-label>
+            <input matInput formControlName="distributor">
+          </mat-form-field>
+          <mat-form-field appearance="fill" class="input-field">
+            <mat-label>Retailer</mat-label>
+            <input matInput formControlName="retailer">
+          </mat-form-field>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button mat-button (click)="addNewPhoneInput()">Add Another Phone</button>
+      <button mat-button color="warn" (click)="removeLastPhoneInput()"
+        *ngIf="phonesFormArray.controls.length > 1">Remove Last Phone</button>
+      <button mat-raised-button color="primary" type="submit">Add to Inventory</button>
+    </div>
+
+  </form> -->
+</div>
+
+
+
+
+<div class="table-container">
+  <div class="mat-elevation-z8">
+    <h1 class="table-header">Inventory</h1>
+    <table mat-table [dataSource]="phones" class="mat-elevation-z8">
+
+      <!-- IMEI Column -->
+      <ng-container matColumnDef="imei">
+        <th mat-header-cell *matHeaderCellDef> IMEI </th>
+        <td mat-cell *matCellDef="let element"> {{element.imei}} </td>
+      </ng-container>
+
+      <!-- Status Column -->
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef> Status </th>
+        <td mat-cell *matCellDef="let element"> {{element.status}} </td>
+      </ng-container>
+
+      <!-- Type Column -->
+      <ng-container matColumnDef="type">
+        <th mat-header-cell *matHeaderCellDef> Type </th>
+        <td mat-cell *matCellDef="let element"> {{element.type}} </td>
+      </ng-container>
+
+      <!-- Model Column -->
+      <ng-container matColumnDef="model">
+        <th mat-header-cell *matHeaderCellDef> Model </th>
+        <td mat-cell *matCellDef="let element"> {{element.model}} </td>
+      </ng-container>
+
+      <!-- Date Column -->
+      <ng-container matColumnDef="date">
+        <th mat-header-cell *matHeaderCellDef> Date </th>
+        <td mat-cell *matCellDef="let element"> {{element.date | date:'medium'}} </td>
+      </ng-container>
+
+      <!-- Age of phone in inventory Column -->
+      <ng-container matColumnDef="age">
+        <th mat-header-cell *matHeaderCellDef> Age (Days) </th>
+        <td mat-cell *matCellDef="let element"> {{ calculateAge(element.date) }} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="masterAgent">
+        <th mat-header-cell *matHeaderCellDef> Master Agent </th>
+        <td mat-cell *matCellDef="let element"> {{element.masterAgent}} </td>
+      </ng-container>
+
+      <!-- Distributor Column -->
+      <ng-container matColumnDef="distributor">
+        <th mat-header-cell *matHeaderCellDef> Distributor </th>
+        <td mat-cell *matCellDef="let element"> {{element.distributor}} </td>
+      </ng-container>
+
+      <!-- Retailer Column -->
+      <ng-container matColumnDef="retailer">
+        <th mat-header-cell *matHeaderCellDef> Retailer </th>
+        <td mat-cell *matCellDef="let element"> {{element.retailer}} </td>
+      </ng-container>
+
+      <!-- Employee Column (Displaying Username) -->
+      <ng-container matColumnDef="employee">
+        <th mat-header-cell *matHeaderCellDef> Employee </th>
+        <td mat-cell *matCellDef="let element"> {{element.employee?.username}} </td>
+      </ng-container>
+
+      <!-- Delete -->
+      <ng-container matColumnDef="delete">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let element">
+          <button *ngIf="!isEmployee" mat-icon-button (click)="deletePhone(element.imei)">
+            <mat-icon color="warn">delete</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+
+
+      <!-- Header and Row Declarations -->
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+    </table>
+  </div>
+
+  <mat-paginator [length]="totalElements" [pageSize]="pageSize" [pageSizeOptions]="[5, 10, 20]"
+    (page)="changePage($event)">
+  </mat-paginator>
+
+
+</div>
+
+<div class="inventory-page-container remove-section">
+  <h1 *ngIf="!isEmployee" class="table-header">Remove Devices</h1>
+  <form class="input-field-wide" [formGroup]="reAssignForm"> <!-- Ensure formGroup is added here -->
+    <div class="input-field-wide">
+      <mat-form-field appearance="fill">
+        <mat-label>IMEIs (one per line)</mat-label>
+        <!-- Ensure formControlName="imeis" is properly set up -->
+        <textarea matInput formControlName="imeis" placeholder="Enter IMEIs, one per line" rows="10"></textarea>
+      </mat-form-field>
+      <button mat-raised-button color="warn" (click)="deleteIMEIs()">Remove IMEIs</button>
+    </div>
+  </form>
+</div>
+
+

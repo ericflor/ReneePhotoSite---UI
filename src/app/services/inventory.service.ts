@@ -38,7 +38,7 @@ export class InventoryService {
   updatePhone(imei: string, phoneDetails: Phone): Observable<Phone> {
     const headers = new HttpHeaders({
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${this.getAuthToken()}`,
+      Authorization: `Bearer ${this.getAuthToken()}`
     });
     console.log('PHONE DETAILS: ' + phoneDetails.employee);
     return this.http.patch<Phone>(`${this.apiUrl}/${imei}`, phoneDetails, {
