@@ -24,6 +24,7 @@
   </div>
 
   <br>
+  <hr class="custom-hr">
   <br>
 
   <h2 *ngIf="isAdmin" class="table-header">Upload by IMEI List</h2>
@@ -185,7 +186,7 @@
         <th mat-header-cell *matHeaderCellDef> Delete </th>
         <td mat-cell *matCellDef="let element">
           <button *ngIf="isAdmin" mat-icon-button (click)="deletePhone(element.imei)">
-            <mat-icon color="warn">delete</mat-icon>
+            <mat-icon class="delete-icon" color="warn">delete</mat-icon>
           </button>
         </td>
       </ng-container>

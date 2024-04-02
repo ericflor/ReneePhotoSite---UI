@@ -220,5 +220,8 @@ mat-paginator {
   cursor: pointer;
 }
 
+.delete-icon {
+  margin-bottom: 42%;
+}
 
 
