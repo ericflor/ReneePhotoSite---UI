@@ -119,7 +119,7 @@ export class UsersComponent implements OnInit {
 
             console.log('Navigating to inventory'); // For debugging
             // Navigate to User Homepage
-            this.router.navigate(['/inventory']);
+            this.router.navigate(['/upload']);
           },
           (error) => {
             console.error(error);

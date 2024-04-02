@@ -94,7 +94,7 @@ export class AssignComponent implements OnInit {
               (e) => e.id === Number(batchAssign.assignedTo)
             );
             if (employee) {
-              console.log("EMPLOYEE: " + employee.name)
+              console.log('EMPLOYEE: ' + employee.name);
               return { ...batchAssign, assignedTo: employee.name };
             }
           }
@@ -169,7 +169,6 @@ export class AssignComponent implements OnInit {
 
       let requests: Observable<UpdatePhoneResponse>[] = imeis.map(
         (imei: string) => {
-
           const updatePayload = {
             imei,
             ...(formValues.masterAgent && {
@@ -188,7 +187,7 @@ export class AssignComponent implements OnInit {
 
           return this.inventoryService.updatePhone(imei, updatePayload).pipe(
             map((response) => {
-              console.log("UPDATE PHONE PAYLOAD: " + updatePayload)
+              console.log('UPDATE PHONE PAYLOAD: ' + updatePayload);
               outcomes.push(true); // Success
               return { success: true, imei };
             }),
@@ -702,8 +701,16 @@ export class AssignComponent implements OnInit {
   downloadReport(batchAssignId: number, type: 'success' | 'failure'): void {
     this.batchAssignService.getBatchAssignById(batchAssignId).subscribe({
       next: (batchAssign) => {
-        const filteredDetails = batchAssign.details?.filter((detail) => (type === 'success' ? detail.success : !detail.success)) ?? [];
-        this.generateExcelReport(filteredDetails, batchAssign.assignedTo ?? '', batchAssignId, type);
+        const filteredDetails =
+          batchAssign.details?.filter((detail) =>
+            type === 'success' ? !detail.success : detail.success
+          ) ?? [];
+        this.generateExcelReport(
+          filteredDetails,
+          batchAssign.assignedTo ?? '',
+          batchAssignId,
+          type
+        );
       },
       error: (error) => {
         console.error('Error fetching batch assign details:', error);
@@ -711,8 +718,12 @@ export class AssignComponent implements OnInit {
     });
   }
 
-
-  generateExcelReport(details: any[], assignedTo: string, batchAssignId: number, type: 'success' | 'failure'): void {
+  generateExcelReport(
+    details: any[],
+    assignedTo: string,
+    batchAssignId: number,
+    type: 'success' | 'failure'
+  ): void {
     const workbook = new Workbook();
     const worksheet = workbook.addWorksheet('Batch Assign Report');
 
@@ -722,9 +733,17 @@ export class AssignComponent implements OnInit {
       { header: 'Assigned To', key: 'assignedTo', width: 30 },
     ];
 
-    // Add rows
+    // Add rows with name replacement for employee ID
     details.forEach((detail) => {
-      worksheet.addRow({ imei: detail.imei, assignedTo });
+      // Check if assignedTo is numeric, implying it's an ID that needs name replacement
+      let assignedToName = assignedTo;
+      if (this.isNumeric(assignedTo)) {
+        const employee = this.employeesList.find(
+          (e) => e.id === Number(assignedTo)
+        );
+        assignedToName = employee?.name ?? 'Unknown Employee'; // Use nullish coalescing operator
+      }
+      worksheet.addRow({ imei: detail.imei, assignedTo: assignedToName });
     });
 
     // Write to buffer and save as Excel file
@@ -732,8 +751,11 @@ export class AssignComponent implements OnInit {
       const blob = new Blob([buffer], {
         type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
       });
-      FileSaver.saveAs(blob, `batch_assign_report_${batchAssignId}_${type}_${new Date().toISOString()}.xlsx`);
+      console.log('Generating report for type:', type);
+      FileSaver.saveAs(
+        blob,
+        `batch_assign_report_${batchAssignId}_${type}_${new Date().toISOString()}.xlsx`
+      );
     });
   }
-
 }
