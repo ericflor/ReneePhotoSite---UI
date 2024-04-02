@@ -15,7 +15,7 @@
 
       <div class="phone-input-group">
         <!-- Master Agent Select -->
-        <mat-form-field appearance="fill" class="input-field">
+        <mat-form-field *ngIf="isAdmin" appearance="fill" class="input-field">
           <mat-label>Master Agent</mat-label>
           <mat-select formControlName="masterAgent">
             <mat-option *ngFor="let agent of agentList" [value]="agent">{{ agent }}</mat-option>
@@ -23,7 +23,7 @@
         </mat-form-field>
 
         <!-- Distributor Select -->
-        <mat-form-field appearance="fill" class="input-field">
+        <mat-form-field *ngIf="isAdmin || isDistributor" appearance="fill" class="input-field">
           <mat-label>Distributor</mat-label>
           <mat-select formControlName="distributor">
             <mat-option *ngFor="let distributor of distributorList" [value]="distributor">{{ distributor }}</mat-option>
@@ -33,7 +33,7 @@
 
       <div class="phone-input-group">
         <!-- Retailer Select -->
-        <mat-form-field appearance="fill" class="input-field">
+        <mat-form-field *ngIf="isAdmin || isRetailer" appearance="fill" class="input-field">
           <mat-label>Retailer</mat-label>
           <mat-select formControlName="retailer">
             <mat-option *ngFor="let retailer of retailerList" [value]="retailer">{{ retailer }}</mat-option>
@@ -42,7 +42,7 @@
 
         <!-- Employee Select -->
         <div formGroupName="employee">
-          <mat-form-field appearance="fill" class="input-field">
+          <mat-form-field *ngIf="isAdmin || isEmployee" appearance="fill" class="input-field">
             <mat-label>Employee</mat-label>
             <mat-select formControlName="id">
               <mat-option *ngFor="let employee of employeesList" [value]="employee.id">{{ employee.name }}</mat-option>

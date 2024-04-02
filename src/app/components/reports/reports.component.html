@@ -16,7 +16,7 @@
       </mat-form-field>
 
       <!-- Master Agent Filter -->
-      <mat-form-field appearance="fill">
+      <mat-form-field *ngIf="isAdmin" appearance="fill">
         <mat-label>Master Agent</mat-label>
         <mat-select [value]="selectedMasterAgent" (valueChange)="selectedMasterAgent = $event">
           <mat-option *ngFor="let masterAgent of agentList" [value]="masterAgent">{{ masterAgent }}</mat-option>
@@ -24,7 +24,7 @@
       </mat-form-field>
 
       <!-- Distributor Filter -->
-      <mat-form-field appearance="fill">
+      <mat-form-field *ngIf="isAdmin || isDistributor" appearance="fill">
         <mat-label>Distributor</mat-label>
         <mat-select [value]="selectedDistributor" (valueChange)="selectedDistributor = $event">
           <mat-option *ngFor="let distributor of distributorList" [value]="distributor">{{ distributor }}</mat-option>
@@ -32,7 +32,7 @@
       </mat-form-field>
 
       <!-- Retailer Filter -->
-      <mat-form-field appearance="fill">
+      <mat-form-field *ngIf="isAdmin || isRetailer" appearance="fill">
         <mat-label>Retailer</mat-label>
         <mat-select [value]="selectedRetailer" (valueChange)="selectedRetailer = $event">
           <mat-option *ngFor="let retailer of retailerList" [value]="retailer">{{ retailer }}</mat-option>
@@ -40,7 +40,7 @@
       </mat-form-field>
 
       <!-- Employee Filter -->
-      <mat-form-field appearance="fill">
+      <mat-form-field *ngIf="isAdmin || isEmployee" appearance="fill">
         <mat-label>Employee</mat-label>
         <mat-select [value]="selectedEmployee" (valueChange)="selectedEmployee = $event">
           <mat-option *ngFor="let employee of employeesList" [value]="employee.username">{{ employee.username }}

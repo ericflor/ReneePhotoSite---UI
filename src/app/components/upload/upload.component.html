@@ -1,7 +1,7 @@
 <div class="inventory-page-container">
 
-  <h1 *ngIf="!isEmployee" class="table-header">Add New Devices</h1>
-  <div class="upload-section">
+  <h1 *ngIf="isAdmin" class="table-header">Add New Devices</h1>
+  <div *ngIf="isAdmin" class="upload-section">
     <!-- Hidden file input -->
     <input type="file" #fileInput id="file" (change)="handleFileInputChange($event)" hidden
       accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" />
@@ -143,7 +143,7 @@
       <ng-container matColumnDef="delete">
         <th mat-header-cell *matHeaderCellDef></th>
         <td mat-cell *matCellDef="let element">
-          <button *ngIf="!isEmployee" mat-icon-button (click)="deletePhone(element.imei)">
+          <button *ngIf="isAdmin" mat-icon-button (click)="deletePhone(element.imei)">
             <mat-icon color="warn">delete</mat-icon>
           </button>
         </td>
@@ -164,7 +164,7 @@
 
 </div>
 
-<div class="inventory-page-container remove-section">
+<div *ngIf="isAdmin" class="inventory-page-container remove-section">
   <h1 *ngIf="!isEmployee" class="table-header">Remove Devices</h1>
   <form class="input-field-wide" [formGroup]="reAssignForm"> <!-- Ensure formGroup is added here -->
     <div class="input-field-wide">

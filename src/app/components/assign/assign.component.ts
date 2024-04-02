@@ -116,7 +116,27 @@ export class AssignComponent implements OnInit {
 
   // If logged in user is employee, they should only be able to see the table
   get isEmployee(): boolean {
-    return this.authService.hasRole('ROLE_EMPLOYEE');
+    return this.hasRole('ROLE_EMPLOYEE');
+  }
+
+  get isRetailer(): boolean {
+    return this.hasRole('ROLE_RETAILER')
+  }
+
+  get isDistributor(): boolean {
+    return this.hasRole('ROLE_DISTRIBUTOR')
+  }
+
+  get isAdmin(): boolean {
+    return this.hasRole('ROLE_ADMIN') // MASTER AGENT
+  }
+
+  get userRole(): string[] {
+    return this.authService.getUserRoles();
+  }
+
+  hasRole(role: string): boolean {
+    return this.authService.hasRole(role);
   }
 
   get imeiCount(): number {
@@ -262,7 +282,7 @@ export class AssignComponent implements OnInit {
         this.pageSize = data.size;
         this.currentPage = data.number;
 
-        // Now fetch all agencies and other mat select dropdown data
+        // Fetch all agencies and other mat select dropdown data
         // Populate IMEI, Master Agent, Distributor, Retailer & Employee lists for dropdowns, filtering out undefined values
         this.fetchAllAgencies();
         this.loadDropdownData();
@@ -299,6 +319,9 @@ export class AssignComponent implements OnInit {
   }
 
   loadDropdownData(): void {
+
+
+
     this.inventoryService.fetchAllForDropdowns().subscribe(
       (data) => {
         const phones: Phone[] = data.content;

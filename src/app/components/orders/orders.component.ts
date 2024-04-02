@@ -50,7 +50,27 @@ export class OrdersComponent implements OnInit {
 
   // If logged in user is employee, they should only be able to see the table
   get isEmployee(): boolean {
-    return this.authService.hasRole('ROLE_EMPLOYEE');
+    return this.hasRole('ROLE_EMPLOYEE');
+  }
+
+  get isRetailer(): boolean {
+    return this.hasRole('ROLE_RETAILER')
+  }
+
+  get isDistributor(): boolean {
+    return this.hasRole('ROLE_DISTRIBUTOR')
+  }
+
+  get isAdmin(): boolean {
+    return this.hasRole('ROLE_ADMIN') // MASTER AGENT
+  }
+
+  get userRole(): string[] {
+    return this.authService.getUserRoles();
+  }
+
+  hasRole(role: string): boolean {
+    return this.authService.hasRole(role);
   }
 
   loadOrders(page: number, size: number): void {
