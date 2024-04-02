@@ -98,3 +98,15 @@ input[type="password"]::-webkit-credentials-auto-fill-button {
   right: 0;
 }
 
+:host ::ng-deep .login-form-container input::-ms-reveal,
+:host ::ng-deep .login-form-container input::-ms-clear {
+  display: none;
+}
+
+:host ::ng-deep .login-form-container input[type="password"]::-webkit-credentials-auto-fill-button {
+  visibility: hidden;
+  position: absolute;
+  right: 0;
+}
+
+
