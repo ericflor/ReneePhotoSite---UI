@@ -1,28 +1,33 @@
-<div class="flip-container" [class.flip]="!isLoginFormVisible">
-  <mat-card class="flip-card">
-    <!-- Login Form -->
-    <div class="flip-card-front" *ngIf="isLoginFormVisible">
-      <mat-card-title>Login</mat-card-title>
-      <mat-card-content>
-        <form [formGroup]="loginForm" (ngSubmit)="onLogin()">
-          <mat-form-field appearance="fill">
-            <mat-label>Username</mat-label>
-            <input matInput formControlName="username">
-          </mat-form-field>
+<div class="form-container">
+  <img src="/assets/logo.jpg" alt="Logo" class="logo-img">
+  <div class="login-form-container">
 
-          <mat-form-field appearance="fill">
-            <mat-label>Password</mat-label>
-            <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="password"
-              (keyup.enter)="onLogin()">
 
-            <button mat-icon-button matSuffix (click)="hidePassword = !hidePassword">
-              <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
-            </button>
-          </mat-form-field>
+    <mat-card>
+      <!-- Login Form -->
+      <div *ngIf="isLoginFormVisible">
+        <!-- <mat-card-title>Login</mat-card-title> -->
+        <mat-card-content>
+          <form [formGroup]="loginForm" (ngSubmit)="onLogin()">
+            <mat-form-field appearance="fill">
+              <mat-label>Username</mat-label>
+              <input matInput formControlName="username">
+            </mat-form-field>
 
-          <button mat-raised-button class="login-button" type="submit">Login</button>
-        </form>
-      </mat-card-content>
-    </div>
-  </mat-card>
+            <mat-form-field appearance="fill">
+              <mat-label>Password</mat-label>
+              <input matInput [type]="hidePassword ? 'password' : 'text'" formControlName="password" (keyup.enter)="onLogin()">
+              <button mat-icon-button matSuffix (click)="togglePasswordVisibility()" type="button">
+                <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+              </button>
+            </mat-form-field>
+
+
+            <button color="primary" mat-raised-button class="login-button" type="submit">Login</button>
+          </form>
+        </mat-card-content>
+      </div>
+    </mat-card>
+
+  </div>
 </div>

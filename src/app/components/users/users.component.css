@@ -5,84 +5,42 @@
   padding: 20px;
 }
 
-mat-card {
-  width: 300px;
-  margin-bottom: 20px;
-  box-shadow: none !important;
+
+.logo-img {
+  max-width: 400px; /* Adjust the logo size */
+  margin-bottom: 10%; /* Increase space between logo and form */
 }
 
-mat-form-field {
-  width: 100%;
+.login-form-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-bottom: 50%;
+  width: 100%; /* Makes the container responsive */
 }
 
-.mat-progress-bar {
-  margin-top: 10px;
-}
-
-::ng-deep .progress-bar-very-weak .mat-progress-bar-fill::after {
-  background-color: #FF5722; /* Red */
-}
-
-::ng-deep .progress-bar-weak .mat-progress-bar-fill::after {
-  background-color: #FF9800; /* Orange */
-}
-
-::ng-deep .progress-bar-medium .mat-progress-bar-fill::after {
-  background-color: #FFEB3B; /* Yellow */
-}
-
-::ng-deep .progress-bar-strong .mat-progress-bar-fill::after {
-  background-color: #CDDC39; /* Yellow-green */
-}
-
-::ng-deep .progress-bar-very-strong .mat-progress-bar-fill::after {
-  background-color: #4CAF50; /* Checkmark green */
-}
-
+/* Additional styling for improved layout and responsiveness */
 :host {
   display: flex;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
-  align-items: flex-start; /* Align items to the start of the container */
-  margin-top: 10%;
+  min-height: 100vh; /* Ensures the login page takes up the full viewport height */
+  background-color: #2C3E50; /* Background color matching the navbar */
 }
 
-.flip-container {
-  perspective: 1000px;
-  width: 300px; /* Width of the card */
+/* Ensure form fields and buttons fit well within the container */
+mat-form-field, .login-button {
+  width: 100%; /* Ensures form fields and buttons expand to fill the container */
 }
 
-.flip-card {
-  width: 100%;
-  height: 100%;
-  transform-style: preserve-3d;
-  transition: transform 0.6s;
-}
-
-.flip-card-front,
-.flip-card-back {
-  width: 100%;
-  backface-visibility: hidden;
-  position: absolute;
-  top: 0;
-  left: 0;
-}
-
-.flip-card-front {
-  z-index: 2; /* Ensures front content is clickable */
-  transform: rotateY(0deg);
-}
-
-.flip-card-back {
-  transform: rotateY(-180deg);
-}
-
-.flip-container.flip .flip-card {
-  transform: rotateY(180deg);
+/* Enhances the appearance of the login button */
+.login-button {
+  margin-top: 20px; /* Adds some space above the login button */
 }
 
 /* Style for the login and register buttons */
 .login-button, .register-button {
-  background-color: rgb(74, 146, 131); /* Sage color */
   color: white; /* Adjust text color as needed */
   border: none; /* Remove border if any */
 }
@@ -91,3 +49,52 @@ mat-form-field {
 .login-button:hover, .register-button:hover {
   background-color: rgb(64, 126, 113); /* Slightly darker shade for hover effect */
 }
+
+/* Targeting the mat-card within the login-form-container */
+.login-form-container mat-card {
+  background-color: #2C3E50; /* Setting the background color to match the main background */
+  color: white; /* Changing text color to white for better visibility */
+}
+
+/* Styling the mat-form-field label and input text to white for visibility */
+::ng-deep .login-form-container mat-form-field .mat-form-field-label,
+::ng-deep .login-form-container mat-form-field .mat-input-element {
+  color: white; /* Makes the text color white */
+}
+
+/* Changing the mat-form-field underline and placeholder to white */
+::ng-deep .login-form-container mat-form-field.mat-focused .mat-form-field-ripple,
+::ng-deep .login-form-container mat-form-field.mat-focused .mat-form-field-label {
+  color: white; /* Changes to white when the field is focused */
+}
+
+/* Adjusting the mat-icon color to white for visibility */
+::ng-deep .login-form-container mat-icon {
+  color: white;
+}
+
+/* Styling the login button to better match the theme */
+.login-button {
+  /* background-color: rgb(64, 126, 113); */
+  color: white; /* Button text color */
+}
+
+/* Optionally, if you want the card to have no elevation/shadow */
+::ng-deep .login-form-container mat-card {
+  box-shadow: none; /* Removes the shadow */
+}
+
+
+/* Hide the browser's default password reveal icon */
+input::-ms-reveal,
+input::-ms-clear {
+  display: none;
+}
+
+/* For Chrome's autofill feature */
+input[type="password"]::-webkit-credentials-auto-fill-button {
+  visibility: hidden;
+  position: absolute;
+  right: 0;
+}
+

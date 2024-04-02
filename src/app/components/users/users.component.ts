@@ -60,6 +60,11 @@ export class UsersComponent implements OnInit {
     this.isLoginFormVisible = !this.isLoginFormVisible;
   }
 
+  togglePasswordVisibility(): void {
+    this.hidePassword = !this.hidePassword;
+  }
+
+
   checkPassword(): void {
     const password = this.registrationForm.get('password')?.value || '';
     this.isPasswordValid =

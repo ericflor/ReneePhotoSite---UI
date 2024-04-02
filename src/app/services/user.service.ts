@@ -18,4 +18,8 @@ export class UserService {
 
     return this.http.post(this.apiUrl, loginRequest, httpOptions);
   }
+
+  isLoggedIn(): boolean {
+    return !!localStorage.getItem('accessToken');
+  }
 }
