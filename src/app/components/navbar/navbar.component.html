@@ -20,7 +20,9 @@
     <a (click)="navigateTo('/orders')">Orders</a>
     <a (click)="navigateTo('/agencies')">Agencies</a>
     <div class="dropdown">
-      <button class="dropbtn">Account</button>
+      <button class="dropbtn">
+        <mat-icon>account_circle</mat-icon>
+      </button>
       <div class="dropdown-content">
         <a (click)="navigateTo('/login')">Login</a>
         <a (click)="logout()">Logout</a>
