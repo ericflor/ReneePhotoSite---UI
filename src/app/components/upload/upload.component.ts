@@ -23,6 +23,8 @@ import { Phone } from 'src/app/models/phone';
 import { FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
 import { Agency } from 'src/app/models/agency';
 import { AuthGuardService } from 'src/app/services/authGuard.service';
+import { MatDialog } from '@angular/material/dialog';
+import { EditPhoneFormComponent } from '../edit-phone-form/edit-phone-form.component';
 
 @Component({
   selector: 'app-upload',
@@ -52,6 +54,7 @@ export class UploadComponent implements OnInit {
     'employee',
     'date',
     'age',
+    'edit',
     'delete',
   ];
   totalElements = 0;
@@ -68,11 +71,13 @@ export class UploadComponent implements OnInit {
   selectedMasterAgent?: string;
   selectedRetailer?: string;
   selectedEmployee?: string;
+  dateRangeForm!: FormGroup;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild('fileInput') fileInput!: ElementRef;
 
   constructor(
+    private dialog: MatDialog,
     private authService: AuthGuardService,
     private inventoryService: InventoryService,
     private agencyService: AgencyService,
@@ -84,11 +89,109 @@ export class UploadComponent implements OnInit {
     });
 
     this.reAssignForm = this.initReAssignFields();
+
+    // Initialize the dateRangeForm
+    this.dateRangeForm = this.fb.group({
+      startDate: ['', Validators.required],
+      endDate: [''], // End date is optional to allow filtering by a single date or a range
+    });
   }
 
   ngOnInit(): void {
     this.loadInventory(this.currentPage, this.pageSize);
   }
+
+  openEditDialog(phone: Phone): void {
+    const dialogRef = this.dialog.open(EditPhoneFormComponent, {
+      width: '666px',
+      data: { phone }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result && phone.imei) {
+        // Now phone.imei is guaranteed to be a string and not undefined
+        this.inventoryService.updatePhone(phone.imei, result).subscribe({
+          next: (updatedPhone) => {
+            console.log('Phone updated successfully', updatedPhone);
+            this.loadInventory(this.currentPage, this.pageSize);
+            this.snackBar.open('Phone updated successfully!', 'Close', { duration: 3000 });
+          },
+          error: (error) => {
+            console.error('Error updating phone', error);
+            this.snackBar.open('Error updating phone. Please try again.', 'Close', { duration: 3000 });
+          }
+        });
+      } else {
+        // Handle the case where phone.imei is undefined, or the dialog was closed without saving
+        console.error('IMEI is undefined or the dialog was closed without saving');
+        this.snackBar.open('Error: IMEI is undefined or no changes were made.', 'Close', { duration: 3000 });
+      }
+    });
+  }
+
+
+
+
+  filterInventory(): void {
+    if (this.dateRangeForm.valid) {
+      const { startDate, endDate } = this.dateRangeForm.value;
+      const startDateObj = new Date(startDate);
+      let endDateObj = endDate ? new Date(endDate) : new Date();
+
+      // Adjust endDateObj to the end of the day if endDate is provided
+      if (endDate) {
+        endDateObj.setHours(23, 59, 59, 999);
+      }
+
+      // Filter the phones array based on the date range
+      const filteredPhones = this.phones.filter(phone => {
+        if (!phone.date) {
+          // If phone.date is undefined or empty, exclude the phone from the filtered list
+          return false;
+        }
+
+        // Now we are sure phone.date is defined, parse it
+        const phoneDate = this.parseDateString(phone.date);
+
+        return phoneDate >= startDateObj && phoneDate <= endDateObj;
+      });
+
+      // Update the component state with the filtered data
+      this.phones = filteredPhones;
+      this.totalElements = filteredPhones.length;
+      this.currentPage = 0; // Reset to the first page
+
+      // Reset the paginator to the first page if applicable
+      if (this.paginator) {
+        this.paginator.firstPage();
+      }
+    } else {
+      this.snackBar.open('Please enter at least a start date to filter by.', 'Close', { duration: 3000 });
+    }
+  }
+
+  // Helper function to parse date strings
+  parseDateString(dateString: string): Date {
+    // Assuming the date string format is "YYYY-MM-DD". Adjust this logic based on your actual format
+    const parts = dateString.split('-');
+    const year = parseInt(parts[0], 10);
+    const month = parseInt(parts[1], 10) - 1; // JavaScript months are 0-based
+    const day = parseInt(parts[2], 10);
+
+    return new Date(year, month, day);
+  }
+
+  resetFilters(): void {
+    // Reset any filter form controls or filter criteria here
+    this.dateRangeForm.reset();
+    this.clearFilters(); // Call clearFilters if it resets other filter criteria
+
+    // Reload the original inventory data
+    this.loadInventory(0, this.pageSize); // Resets to the first page with initial page size
+  }
+
+
+
 
   // If logged in user is employee, they should only be able to see the table
   get isEmployee(): boolean {
@@ -96,15 +199,15 @@ export class UploadComponent implements OnInit {
   }
 
   get isRetailer(): boolean {
-    return this.hasRole('ROLE_RETAILER')
+    return this.hasRole('ROLE_RETAILER');
   }
 
   get isDistributor(): boolean {
-    return this.hasRole('ROLE_DISTRIBUTOR')
+    return this.hasRole('ROLE_DISTRIBUTOR');
   }
 
   get isAdmin(): boolean {
-    return this.hasRole('ROLE_ADMIN') // MASTER AGENT
+    return this.hasRole('ROLE_ADMIN'); // MASTER AGENT
   }
 
   get userRole(): string[] {
@@ -117,7 +220,7 @@ export class UploadComponent implements OnInit {
 
   initPhoneFields(): FormGroup {
     return this.fb.group({
-      imei: ['', Validators.required],
+      imeis: ['', Validators.required],
       type: ['', Validators.required],
       model: ['', Validators.required],
       masterAgent: [''], // Optional field
@@ -270,7 +373,7 @@ export class UploadComponent implements OnInit {
         });
 
         this.employeesList = Array.from(uniqueAgencies.values());
-        console.log('AGENCIES LIST:', this.employeesList);
+        // console.log('AGENCIES LIST:', this.employeesList);
       },
       (error) => {
         console.error('Error fetching agencies:', error);

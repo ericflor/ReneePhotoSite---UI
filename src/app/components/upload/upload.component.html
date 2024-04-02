@@ -1,6 +1,6 @@
 <div class="inventory-page-container">
 
-  <h1 *ngIf="isAdmin" class="table-header">Add New Devices</h1>
+  <h1 *ngIf="isAdmin" class="table-header">Add New Devices To Inventory</h1>
   <div *ngIf="isAdmin" class="upload-section">
     <!-- Hidden file input -->
     <input type="file" #fileInput id="file" (change)="handleFileInputChange($event)" hidden
@@ -23,14 +23,17 @@
     </button>
   </div>
 
+  <br>
+  <br>
 
-  <!-- <form *ngIf="!isEmployee" [formGroup]="addPhoneForm" (ngSubmit)="submitPhones()" class="inventory-form">
+  <h2 *ngIf="isAdmin" class="table-header">Upload by IMEI List</h2>
+  <form *ngIf="isAdmin" [formGroup]="addPhoneForm" (ngSubmit)="submitPhones()" class="inventory-form">
     <div formArrayName="phones">
       <div *ngFor="let phone of phonesFormArray.controls; let i = index" [formGroupName]="i" class="phone-input-group">
 
         <mat-form-field appearance="fill" class="input-field">
-          <mat-label>IMEI</mat-label>
-          <input matInput formControlName="imei">
+          <mat-label>IMEIs (one per line)</mat-label>
+          <textarea matInput formControlName="imeis" placeholder="Enter IMEIs, one per line" rows="10"></textarea>
         </mat-form-field>
 
 
@@ -44,7 +47,7 @@
           <input matInput formControlName="model">
         </mat-form-field>
 
-        <div class="additional-fields">
+        <!-- <div class="additional-fields">
           <mat-form-field appearance="fill" class="input-field">
             <mat-label>Master Agent</mat-label>
             <input matInput formControlName="masterAgent">
@@ -57,21 +60,51 @@
             <mat-label>Retailer</mat-label>
             <input matInput formControlName="retailer">
           </mat-form-field>
-        </div>
+        </div> -->
 
       </div>
     </div>
 
     <div class="form-actions">
-      <button mat-button (click)="addNewPhoneInput()">Add Another Phone</button>
+      <!-- <button mat-button (click)="addNewPhoneInput()">Add Another Phone</button> -->
       <button mat-button color="warn" (click)="removeLastPhoneInput()"
         *ngIf="phonesFormArray.controls.length > 1">Remove Last Phone</button>
-      <button mat-raised-button color="primary" type="submit">Add to Inventory</button>
+      <button mat-raised-button color="primary" type="submit">Add Batch to Inventory</button>
     </div>
 
-  </form> -->
+  </form>
 </div>
 
+<br>
+<hr class="custom-hr">
+<br>
+
+<!-- Filtering Section -->
+<h2 class="table-header">Filter Inventory</h2>
+<div class="filter-export-section">
+  <div class="filter-container">
+    <form [formGroup]="dateRangeForm" class="filter-row">
+      <mat-form-field appearance="fill">
+        <mat-label>Start Date</mat-label>
+        <input matInput [matDatepicker]="picker1" formControlName="startDate">
+        <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
+        <mat-datepicker #picker1></mat-datepicker>
+      </mat-form-field>
+
+      <mat-form-field appearance="fill">
+        <mat-label>End Date</mat-label>
+        <input matInput [matDatepicker]="picker2" formControlName="endDate">
+        <mat-datepicker-toggle matSuffix [for]="picker2"></mat-datepicker-toggle>
+        <mat-datepicker #picker2></mat-datepicker>
+      </mat-form-field>
+
+      <div class="filter-actions">
+        <button mat-raised-button color="primary" (click)="filterInventory()">Filter</button>
+        <button mat-raised-button color="accent" (click)="resetFilters()">Clear Filters</button>
+      </div>
+    </form>
+  </div>
+</div>
 
 
 
@@ -139,9 +172,17 @@
         <td mat-cell *matCellDef="let element"> {{element.employee?.username}} </td>
       </ng-container>
 
+      <!-- Edit -->
+      <ng-container matColumnDef="edit">
+        <th mat-header-cell *matHeaderCellDef> Edit </th>
+        <td mat-cell *matCellDef="let phone">
+          <mat-icon class="edit-icon" *ngIf="isAdmin" (click)="openEditDialog(phone)">edit</mat-icon>
+        </td>
+      </ng-container>
+
       <!-- Delete -->
       <ng-container matColumnDef="delete">
-        <th mat-header-cell *matHeaderCellDef></th>
+        <th mat-header-cell *matHeaderCellDef> Delete </th>
         <td mat-cell *matCellDef="let element">
           <button *ngIf="isAdmin" mat-icon-button (click)="deletePhone(element.imei)">
             <mat-icon color="warn">delete</mat-icon>
@@ -164,9 +205,13 @@
 
 </div>
 
+<br>
+<hr class="custom-hr">
+
 <div *ngIf="isAdmin" class="inventory-page-container remove-section">
   <h1 *ngIf="!isEmployee" class="table-header">Remove Devices</h1>
-  <form class="input-field-wide" [formGroup]="reAssignForm"> <!-- Ensure formGroup is added here -->
+  <form class="input-field-wide" [formGroup]="reAssignForm">
+    <!-- Ensure formGroup is added here -->
     <div class="input-field-wide">
       <mat-form-field appearance="fill">
         <mat-label>IMEIs (one per line)</mat-label>
@@ -177,5 +222,3 @@
     </div>
   </form>
 </div>
-
-

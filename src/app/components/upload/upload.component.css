@@ -203,5 +203,22 @@ mat-paginator {
   }
 }
 
+.filter-actions {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+/* CSS styles for the custom <hr> */
+.custom-hr {
+  width: 50%;               /* Make the line half the width of its container */
+  border: 1px solid #000;   /* Solid, black line */
+  margin: 20px auto;        /* Add some vertical space around the line and center it horizontally */
+}
+
+.edit-icon:hover {
+  cursor: pointer;
+}
+
 
 

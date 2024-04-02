@@ -1,0 +1,55 @@
+<h2 mat-dialog-title>Edit Phone Record</h2>
+<div mat-dialog-content>
+  <form [formGroup]="editForm" (ngSubmit)="onSubmit()">
+
+    <mat-form-field appearance="fill">
+      <mat-label>IMEI</mat-label>
+      <input matInput formControlName="imei">
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Status</mat-label>
+      <input matInput formControlName="status">
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Type</mat-label>
+      <input matInput formControlName="type">
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Model</mat-label>
+      <input matInput formControlName="model">
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Master Agent</mat-label>
+      <input matInput formControlName="masterAgent">
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Distributor</mat-label>
+      <input matInput formControlName="distributor">
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Retailer</mat-label>
+      <input matInput formControlName="distributor">
+    </mat-form-field>
+
+    <!-- <mat-form-field appearance="fill">
+      <mat-label>Employee</mat-label>
+      <input matInput formControlName="employee">
+    </mat-form-field> -->
+
+    <mat-form-field appearance="fill">
+      <mat-label>Date</mat-label>
+      <input matInput formControlName="date">
+    </mat-form-field>
+
+    <div mat-dialog-actions>
+      <button mat-button (click)="dialogRef.close()">Cancel</button>
+      <button mat-button type="submit" [disabled]="!editForm.valid" cdkFocusInitial>Save</button>
+    </div>
+  </form>
+</div>

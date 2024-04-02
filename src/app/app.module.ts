@@ -29,6 +29,9 @@ import { EditAgencyDialogComponent } from './components/edit-agency-dialog/edit-
 import { UploadComponent } from './components/upload/upload.component';
 import { AssignComponent } from './components/assign/assign.component';
 import { ReportsComponent } from './components/reports/reports.component';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
+import { EditPhoneFormComponent } from './components/edit-phone-form/edit-phone-form.component';
 
 
 @NgModule({
@@ -46,7 +49,8 @@ import { ReportsComponent } from './components/reports/reports.component';
     EditAgencyDialogComponent,
     UploadComponent,
     AssignComponent,
-    ReportsComponent  ],
+    ReportsComponent,
+    EditPhoneFormComponent  ],
   imports: [
     BrowserModule,
     AppRoutingModule,
@@ -61,6 +65,8 @@ import { ReportsComponent } from './components/reports/reports.component';
     MatSnackBarModule,
     MatIconModule,
     MatPaginatorModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
     MatSelectModule,
     MatTableModule,
     MatDialogModule
