@@ -35,13 +35,14 @@ export class InventoryService {
     return this.http.post(`${this.apiUrl}/batch`, phones, { headers });
   }
 
-  updatePhone(imei: string, phoneDetails: Phone): Observable<Phone> {
+  updatePhone(imei: string, phoneDetails: Phone): Observable<any> {
+    // Change return type to any or a specific interface
     const headers = new HttpHeaders({
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${this.getAuthToken()}`
+      Authorization: `Bearer ${this.getAuthToken()}`,
     });
-    console.log('PHONE DETAILS: ' + phoneDetails.employee);
-    return this.http.patch<Phone>(`${this.apiUrl}/${imei}`, phoneDetails, {
+    return this.http.patch<any>(`${this.apiUrl}/${imei}`, phoneDetails, {
+      // Use any or a specific interface
       headers,
     });
   }
@@ -83,11 +84,11 @@ export class InventoryService {
       Authorization: `Bearer ${this.getAuthToken()}`,
     });
 
-    const params = new HttpParams()
-      .set('page', '0')
-      .set('size', '1000000000'); // Set this to a value you're sure will cover all records
+    const params = new HttpParams().set('page', '0').set('size', '1000000000'); // Set this to a value you're sure will cover all records
 
-    return this.http.get<PaginatedResponse<Phone>>(this.apiUrl, { headers, params });
+    return this.http.get<PaginatedResponse<Phone>>(this.apiUrl, {
+      headers,
+      params,
+    });
   }
-
 }

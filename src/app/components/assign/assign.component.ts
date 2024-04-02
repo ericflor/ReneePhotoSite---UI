@@ -94,7 +94,7 @@ export class AssignComponent implements OnInit {
               (e) => e.id === Number(batchAssign.assignedTo)
             );
             if (employee) {
-              console.log('EMPLOYEE: ' + employee.name);
+              // console.log('EMPLOYEE: ' + employee.name);
               return { ...batchAssign, assignedTo: employee.name };
             }
           }
@@ -165,9 +165,7 @@ export class AssignComponent implements OnInit {
         .filter((imei: any) => imei);
       const totalRecords = imeis.length;
 
-      let outcomes: boolean[] = []; // This array will track the success/failure of each IMEI
-
-      let requests: Observable<UpdatePhoneResponse>[] = imeis.map(
+      let outcomes: Observable<UpdatePhoneResponse>[] = imeis.map(
         (imei: string) => {
           const updatePayload = {
             imei,
@@ -181,32 +179,32 @@ export class AssignComponent implements OnInit {
               retailer: formValues.retailer,
             }),
             ...(formValues.employee?.id && {
-              employee: { id: formValues.employee.id }, // Adjusted for correct structure
+              employee: { id: formValues.employee.id },
             }),
           };
 
           return this.inventoryService.updatePhone(imei, updatePayload).pipe(
-            map((response) => {
-              console.log('UPDATE PHONE PAYLOAD: ' + updatePayload);
-              outcomes.push(true); // Success
-              return { success: true, imei };
-            }),
-            catchError((error) => {
-              outcomes.push(false); // Failure
-              return of({ success: false, imei });
-            })
+            map(response => ({ success: true, imei })),
+            catchError(() => of({ success: false, imei }))
           );
         }
       );
 
-      forkJoin(requests).subscribe((results) => {
-        const uploadedSuccess = outcomes.filter((success) => success).length;
-        const uploadedFailure = totalRecords - uploadedSuccess;
+      forkJoin(outcomes).subscribe(results => {
+        const successes = results.filter(result => result.success).length;
+        const failures = totalRecords - successes;
 
-        // Overall success feedback
-        if (uploadedSuccess > 0) {
+        this.snackBar.open(
+          `${successes} out of ${totalRecords} records updated successfully!`,
+          'Close',
+          {
+            duration: 3000,
+          }
+        );
+
+        if (failures > 0) {
           this.snackBar.open(
-            `${uploadedSuccess} out of ${totalRecords} records updated successfully!`,
+            `${failures} out of ${totalRecords} records failed to update.`,
             'Close',
             {
               duration: 3000,
@@ -214,79 +212,47 @@ export class AssignComponent implements OnInit {
           );
         }
 
-        // Failure feedback
-        if (uploadedFailure > 0) {
-          this.snackBar.open(
-            `${uploadedFailure} out of ${totalRecords} records failed to update.`,
-            'Close',
-            {
-              duration: 3000,
-            }
-          );
-        }
-
-        // Determine the assignedTo value based on the filled form controls
         const assignedToValues = [
           formValues.masterAgent,
           formValues.distributor,
           formValues.retailer,
           formValues.employee.id,
-        ].filter((v) => v);
-        this.assignedTo =
-          assignedToValues.length > 0 ? assignedToValues[0] : undefined;
+        ].filter(v => v);
+        this.assignedTo = assignedToValues.length > 0 ? assignedToValues[0] : undefined;
+
+        // Map results to outcomes for batch assign creation
+        const batchOutcomes = results.map(result => result.success);
 
         const batchAssignCreateRequest: BatchAssignCreateRequest = {
           batchAssign: {
-            assignedTo: this.assignedTo, // Set this from formValues accordingly
+            assignedTo: this.assignedTo,
             totalRecords,
-            uploadedSuccess,
-            uploadedFailure,
+            uploadedSuccess: successes,
+            uploadedFailure: failures,
           },
-          imeis, // IMEI list
-          outcomes, // Success/failure outcomes for each IMEI
+          imeis,
+          outcomes: batchOutcomes,
         };
 
-        this.batchAssignService
-          .createBatchAssign(batchAssignCreateRequest)
-          .subscribe({
-            next: (updatedBatch: any) => {
-              console.log('Batch updated successfully', updatedBatch);
-              // Success feedback for the batch record creation
-              this.snackBar.open(
-                'Batch assign record created successfully!',
-                'Close',
-                {
-                  duration: 3000,
-                }
-              );
-              // After successfully creating a new BatchAssign, refresh the records table and form
-              this.loadBatchAssignRecords(0, this.pageSize);
-              this.resetReAssignForm();
-            },
-            error: (error: any) => {
-              console.error('Error updating batch', error);
-              // Failure feedback for the batch record creation
-              this.snackBar.open(
-                'Error creating batch assign record. Please try again.',
-                'Close',
-                {
-                  duration: 3000,
-                }
-              );
-            },
-          });
+        this.batchAssignService.createBatchAssign(batchAssignCreateRequest).subscribe({
+          next: (updatedBatch: any) => {
+            console.log('Batch updated successfully', updatedBatch);
+            this.snackBar.open('Batch assign record created successfully!', 'Close', { duration: 3000 });
+            this.loadBatchAssignRecords(0, this.pageSize);
+            this.employeesList = this.fetchAllAgencies();
+            this.resetReAssignForm();
+          },
+          error: (error: any) => {
+            console.error('Error updating batch', error);
+            this.snackBar.open('Error creating batch assign record. Please try again.', 'Close', { duration: 3000 });
+          },
+        });
       });
     } else {
-      // Form validation failure feedback
-      this.snackBar.open(
-        'Form is not valid. Please check the inputs and try again.',
-        'Close',
-        {
-          duration: 3000,
-        }
-      );
+      this.snackBar.open('Form is not valid. Please check the inputs and try again.', 'Close', { duration: 3000 });
     }
   }
+
 
   loadInventory(page: number, size: number): void {
     this.inventoryService.getAllPhones(page, size).subscribe(
@@ -323,7 +289,7 @@ export class AssignComponent implements OnInit {
         });
 
         this.employeesList = Array.from(uniqueAgencies.values());
-        console.log('AGENCIES LIST:', this.employeesList);
+        // console.log('AGENCIES LIST:', this.employeesList);
       },
       (error) => {
         console.error('Error fetching agencies:', error);
@@ -701,10 +667,16 @@ export class AssignComponent implements OnInit {
   downloadReport(batchAssignId: number, type: 'success' | 'failure'): void {
     this.batchAssignService.getBatchAssignById(batchAssignId).subscribe({
       next: (batchAssign) => {
+
+        console.log(`Received batch assign data for ID ${batchAssignId}:`, batchAssign);
+
         const filteredDetails =
           batchAssign.details?.filter((detail) =>
-            type === 'success' ? !detail.success : detail.success
+            type === 'success' ? detail.success : !detail.success
           ) ?? [];
+
+          console.log(`Filtered details for '${type}' report:`, filteredDetails);
+
         this.generateExcelReport(
           filteredDetails,
           batchAssign.assignedTo ?? '',
