@@ -6,6 +6,10 @@
   width: 100%; /* Use 100% width for responsiveness */
 }
 
+.remove-button {
+  margin-bottom: 2%;
+}
+
 .remove-section .input-field-wide .mat-form-field {
   width: 80%; /* Adjust the width of the input field */
   max-width: 800px; /* Set a max-width for larger screens */
