@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "photo-blog-app": {
+    "inventory-app": {
       "projectType": "application",
       "schematics": {},
       "root": "",
@@ -13,7 +13,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/photo-blog-app",
+            "outputPath": "dist/inventory-app",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": "src/polyfills.ts",
@@ -65,10 +65,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "photo-blog-app:build:production"
+              "browserTarget": "inventory-app:build:production"
             },
             "development": {
-              "browserTarget": "photo-blog-app:build:development"
+              "browserTarget": "inventory-app:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -76,7 +76,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "photo-blog-app:build"
+            "browserTarget": "inventory-app:build"
           }
         },
         "test": {
