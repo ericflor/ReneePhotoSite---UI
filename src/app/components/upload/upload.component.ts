@@ -220,7 +220,7 @@ export class UploadComponent implements OnInit {
 
   initPhoneFields(): FormGroup {
     return this.fb.group({
-      imeis: ['', Validators.required],
+      imei: ['', Validators.required],
       type: ['', Validators.required],
       model: ['', Validators.required],
       masterAgent: [''], // Optional field
@@ -395,23 +395,42 @@ export class UploadComponent implements OnInit {
 
   submitPhones(): void {
     if (this.addPhoneForm.valid) {
-      const phones = this.addPhoneForm.value.phones;
-      this.inventoryService.addPhonesBatch(phones).subscribe(
-        (data) => {
+      const batchPhones: Phone[] | {
+        imei: any; // Remove any leading/trailing whitespace
+        type: any; model: any; masterAgent: any; distributor: any; retailer: any;
+      }[] = [];
+      // Iterate through each phone form group in the FormArray
+      this.addPhoneForm.value.phones.forEach((phoneFormGroup: { imei: string; type: any; model: any; masterAgent: any; distributor: any; retailer: any; }) => {
+        // Extract and split the imei field value by newlines
+        const imeis = phoneFormGroup.imei.split('\n');
+        imeis.forEach((imei: string) => {
+          if (imei.trim()) {
+            // Construct a phone object for each non-empty IMEI
+            const phone = {
+              imei: imei.trim(), // Remove any leading/trailing whitespace
+              type: phoneFormGroup.type,
+              model: phoneFormGroup.model,
+              masterAgent: phoneFormGroup.masterAgent,
+              distributor: phoneFormGroup.distributor,
+              retailer: phoneFormGroup.retailer,
+            };
+            batchPhones.push(phone);
+          }
+        });
+      });
+
+      // Now, batchPhones contains an array of phone objects, one for each IMEI
+
+      this.inventoryService.addPhonesBatch(batchPhones).subscribe(
+        data => {
           console.log('Phones added successfully', data);
           this.loadInventory(this.currentPage, this.pageSize);
           this.addPhoneForm.reset();
-          this.snackBar.open('Phones added successfully!', 'Close', {
-            duration: 3000,
-          });
+          this.snackBar.open('Phones added successfully!', 'Close', { duration: 3000 });
         },
-        (error) => {
+        error => {
           console.error('Error adding phones', error);
-          this.snackBar.open(
-            'Error adding phones. Please try again.',
-            'Close',
-            { duration: 3000 }
-          );
+          this.snackBar.open('Error adding phones. Please try again.', 'Close', { duration: 3000 });
         }
       );
     }
