@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 @Injectable({
   providedIn: 'root'
 })
+
 export class AuthGuardService  {
   constructor(public router: Router) {}
 
@@ -15,7 +16,6 @@ export class AuthGuardService  {
     return true;
   }
 
-  // Decode JWT token and return roles
   getUserRoles(): string[] {
     const token = localStorage.getItem('accessToken');
     if (!token) return [];
@@ -24,7 +24,6 @@ export class AuthGuardService  {
     return payload.roles || [];
   }
 
-  // Check if the user has a specific role
   hasRole(role: string): boolean {
     const roles = this.getUserRoles();
     return roles.includes(role);

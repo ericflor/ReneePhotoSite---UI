@@ -14,10 +14,10 @@ export class CreateAgencyDialogComponent implements OnInit {
       name: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       username: ['', Validators.required],
-      password: ['', Validators.required], // Consider using Validators.minLength for better security
+      password: ['', Validators.required],
       level: ['', Validators.required],
       role: ['', Validators.required],
-      blocked: [false] // Defaults to false, change as needed
+      blocked: [false]
     });
   }
 

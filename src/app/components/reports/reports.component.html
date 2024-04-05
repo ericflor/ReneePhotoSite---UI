@@ -1,13 +1,10 @@
 <div class="inventory-page-container">
 
-  <!-- Export CSV/Excel Filters -->
   <div class="filter-export-section">
     <h1 class="export-header">Reporting</h1>
 
-    <!-- Filters Row -->
     <div class="filter-row">
 
-      <!-- Status Filter -->
       <mat-form-field appearance="fill">
         <mat-label>Status</mat-label>
         <mat-select [value]="selectedStatus" (valueChange)="selectedStatus = $event">
@@ -15,7 +12,6 @@
         </mat-select>
       </mat-form-field>
 
-      <!-- Master Agent Filter -->
       <mat-form-field *ngIf="isAdmin" appearance="fill">
         <mat-label>Master Agent</mat-label>
         <mat-select [value]="selectedMasterAgent" (valueChange)="selectedMasterAgent = $event">
@@ -23,7 +19,6 @@
         </mat-select>
       </mat-form-field>
 
-      <!-- Distributor Filter -->
       <mat-form-field *ngIf="isAdmin || isDistributor" appearance="fill">
         <mat-label>Distributor</mat-label>
         <mat-select [value]="selectedDistributor" (valueChange)="selectedDistributor = $event">
@@ -31,7 +26,6 @@
         </mat-select>
       </mat-form-field>
 
-      <!-- Retailer Filter -->
       <mat-form-field *ngIf="isAdmin || isRetailer" appearance="fill">
         <mat-label>Retailer</mat-label>
         <mat-select [value]="selectedRetailer" (valueChange)="selectedRetailer = $event">
@@ -39,7 +33,6 @@
         </mat-select>
       </mat-form-field>
 
-      <!-- Employee Filter -->
       <mat-form-field *ngIf="isAdmin || isEmployee" appearance="fill">
         <mat-label>Employee</mat-label>
         <mat-select [value]="selectedEmployee" (valueChange)="selectedEmployee = $event">
@@ -48,12 +41,11 @@
         </mat-select>
       </mat-form-field>
 
-      <!-- Clear Filters Button -->
-      <button class="clear-filters-button" mat-raised-button color="accent" (click)="clearFilters()">Clear Filters</button>
+      <button class="clear-filters-button" mat-raised-button color="accent" (click)="clearFilters()">Clear
+        Filters</button>
 
     </div>
 
-    <!-- Export Buttons -->
     <div class="export-buttons">
       <button mat-raised-button color="primary" (click)="exportData('csv')">Export as CSV</button>
       <button mat-raised-button color="primary" (click)="exportData('xlsx')">Export as Excel</button>
@@ -65,37 +57,31 @@
       <h1 class="table-header">Inventory</h1>
       <table mat-table [dataSource]="phones" class="mat-elevation-z8">
 
-        <!-- IMEI Column -->
         <ng-container matColumnDef="imei">
           <th mat-header-cell *matHeaderCellDef> IMEI </th>
           <td mat-cell *matCellDef="let element"> {{element.imei}} </td>
         </ng-container>
 
-        <!-- Status Column -->
         <ng-container matColumnDef="status">
           <th mat-header-cell *matHeaderCellDef> Status </th>
           <td mat-cell *matCellDef="let element"> {{element.status}} </td>
         </ng-container>
 
-        <!-- Type Column -->
         <ng-container matColumnDef="type">
           <th mat-header-cell *matHeaderCellDef> Type </th>
           <td mat-cell *matCellDef="let element"> {{element.type}} </td>
         </ng-container>
 
-        <!-- Model Column -->
         <ng-container matColumnDef="model">
           <th mat-header-cell *matHeaderCellDef> Model </th>
           <td mat-cell *matCellDef="let element"> {{element.model}} </td>
         </ng-container>
 
-        <!-- Date Column -->
         <ng-container matColumnDef="date">
           <th mat-header-cell *matHeaderCellDef> Date </th>
           <td mat-cell *matCellDef="let element"> {{element.date | date:'medium'}} </td>
         </ng-container>
 
-        <!-- Age of phone in inventory Column -->
         <ng-container matColumnDef="age">
           <th mat-header-cell *matHeaderCellDef> Age (Days) </th>
           <td mat-cell *matCellDef="let element"> {{ calculateAge(element.date) }} </td>
@@ -106,25 +92,21 @@
           <td mat-cell *matCellDef="let element"> {{element.masterAgent}} </td>
         </ng-container>
 
-        <!-- Distributor Column -->
         <ng-container matColumnDef="distributor">
           <th mat-header-cell *matHeaderCellDef> Distributor </th>
           <td mat-cell *matCellDef="let element"> {{element.distributor}} </td>
         </ng-container>
 
-        <!-- Retailer Column -->
         <ng-container matColumnDef="retailer">
           <th mat-header-cell *matHeaderCellDef> Retailer </th>
           <td mat-cell *matCellDef="let element"> {{element.retailer}} </td>
         </ng-container>
 
-        <!-- Employee Column (Displaying Username) -->
         <ng-container matColumnDef="employee">
           <th mat-header-cell *matHeaderCellDef> Employee </th>
           <td mat-cell *matCellDef="let element"> {{element.employee?.username}} </td>
         </ng-container>
 
-        <!-- Delete -->
         <ng-container matColumnDef="delete">
           <th mat-header-cell *matHeaderCellDef></th>
           <td mat-cell *matCellDef="let element">
@@ -134,8 +116,6 @@
           </td>
         </ng-container>
 
-
-        <!-- Header and Row Declarations -->
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
         <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
 

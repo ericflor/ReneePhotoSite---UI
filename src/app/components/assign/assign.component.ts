@@ -94,11 +94,9 @@ export class AssignComponent implements OnInit {
               (e) => e.id === Number(batchAssign.assignedTo)
             );
             if (employee) {
-              // console.log('EMPLOYEE: ' + employee.name);
               return { ...batchAssign, assignedTo: employee.name };
             }
           }
-          // If not an ID, or no matching employee found, return as-is
           return batchAssign;
         });
         this.totalElements = data.totalElements;
@@ -109,12 +107,10 @@ export class AssignComponent implements OnInit {
     });
   }
 
-  // Utility function to check if a value is numeric
   isNumeric(value: any): boolean {
     return !isNaN(value) && !isNaN(parseFloat(value));
   }
 
-  // If logged in user is employee, they should only be able to see the table
   get isEmployee(): boolean {
     return this.hasRole('ROLE_EMPLOYEE');
   }
@@ -128,7 +124,7 @@ export class AssignComponent implements OnInit {
   }
 
   get isAdmin(): boolean {
-    return this.hasRole('ROLE_ADMIN') // MASTER AGENT
+    return this.hasRole('ROLE_ADMIN')
   }
 
   get userRole(): string[] {
@@ -140,7 +136,6 @@ export class AssignComponent implements OnInit {
   }
 
   get imeiCount(): number {
-    // Split by new line and filter out empty lines
     return (
       this.reAssignForm
         .get('imeis')
@@ -151,7 +146,7 @@ export class AssignComponent implements OnInit {
 
   initReAssignFields(): FormGroup {
     return this.fb.group({
-      imeis: ['', Validators.required], // Multiple IMEIs
+      imeis: ['', Validators.required],
       masterAgent: [''],
       distributor: [''],
       retailer: [''],
@@ -162,9 +157,8 @@ export class AssignComponent implements OnInit {
   }
 
   resetReAssignForm(): void {
-    // Resets the form fields to empty values or initial state
     this.reAssignForm.reset({
-      imeis: '', // Resetting to empty or initial value
+      imeis: '',
       masterAgent: '',
       distributor: '',
       retailer: '',
@@ -240,7 +234,6 @@ export class AssignComponent implements OnInit {
         ].filter(v => v);
         this.assignedTo = assignedToValues.length > 0 ? assignedToValues[0] : undefined;
 
-        // Map results to outcomes for batch assign creation
         const batchOutcomes = results.map(result => result.success);
 
         const batchAssignCreateRequest: BatchAssignCreateRequest = {
@@ -282,8 +275,6 @@ export class AssignComponent implements OnInit {
         this.pageSize = data.size;
         this.currentPage = data.number;
 
-        // Fetch all agencies and other mat select dropdown data
-        // Populate IMEI, Master Agent, Distributor, Retailer & Employee lists for dropdowns, filtering out undefined values
         this.fetchAllAgencies();
         this.loadDropdownData();
 
@@ -300,7 +291,6 @@ export class AssignComponent implements OnInit {
       (response) => {
         const agencies = response.content;
 
-        // Map over agencies to create a unique list based on ID
         const uniqueAgencies = new Map<number, Agency>();
         agencies.forEach((agency: Agency) => {
           if (agency && !uniqueAgencies.has(agency.id!)) {
@@ -309,7 +299,6 @@ export class AssignComponent implements OnInit {
         });
 
         this.employeesList = Array.from(uniqueAgencies.values());
-        // console.log('AGENCIES LIST:', this.employeesList);
       },
       (error) => {
         console.error('Error fetching agencies:', error);
@@ -354,7 +343,6 @@ export class AssignComponent implements OnInit {
               .filter((retailer): retailer is string => !!retailer)
           )
         );
-        // Populate statusList, typeList, and modelList
         this.statusList = Array.from(
           new Set(
             phones
@@ -388,7 +376,7 @@ export class AssignComponent implements OnInit {
   handleFileInput(files: FileList) {
     const file = files.item(0);
     if (file) {
-      this.selectedFileName = file.name; // Update the selected file name
+      this.selectedFileName = file.name;
       this.parseFile(file);
     }
   }
@@ -407,7 +395,6 @@ export class AssignComponent implements OnInit {
   onDragOver(event: DragEvent) {
     event.preventDefault();
     event.stopPropagation();
-    // Add visual feedback
   }
 
   onDrop(event: DragEvent) {
@@ -416,11 +403,9 @@ export class AssignComponent implements OnInit {
     if (event.dataTransfer && event.dataTransfer.files.length > 0) {
       this.handleFileInput(event.dataTransfer.files);
     }
-    // Remove visual feedback
   }
 
   onDragLeave(event: DragEvent) {
-    // Remove visual feedback
   }
 
   parseFile(file: File) {
@@ -439,7 +424,7 @@ export class AssignComponent implements OnInit {
       const wsname: string = wb.SheetNames[0];
       const ws: XLSX.WorkSheet = wb.Sheets[wsname];
       const data = XLSX.utils.sheet_to_json(ws, { header: 1 });
-      this.processData(data); // Implement this method to process your data
+      this.processData(data);
     };
     reader.readAsBinaryString(file);
   }
@@ -448,21 +433,19 @@ export class AssignComponent implements OnInit {
     Papa.parse(file, {
       complete: (result: any) => {
         console.log('Parsed CSV:', result);
-        this.processData(result.data); // Implement this method to process data
+        this.processData(result.data);
       },
     });
   }
 
   processData(data: any[]) {
-    // Assuming the first row is headers and the rest are data rows
-    const headers = data[0].map((header: string) => header.toLowerCase()); // Normalize headers to lowercase
+    const headers = data[0].map((header: string) => header.toLowerCase());
     const rows = data.slice(1);
 
     const phones = rows.map((row) => {
       let phone: any = {};
       row.forEach((cell: any, index: number) => {
         const header = headers[index];
-        // Use lowercase in your switch-case to match the normalized headers
         switch (header) {
           case 'imei':
             phone.imei = cell;
@@ -519,13 +502,12 @@ export class AssignComponent implements OnInit {
 
   triggerUpload() {
     if (this.selectedFileName && this.parsedPhones.length > 0) {
-      // Now call the addPhonesBatch method with the stored data
       this.inventoryService.addPhonesBatch(this.parsedPhones).subscribe(
         (data) => {
           console.log('Phones added successfully', data);
           this.loadInventory(this.currentPage, this.pageSize);
           this.addPhoneForm.reset();
-          this.clearFileInput(); // Clear the selected file info
+          this.clearFileInput();
           this.parsedPhones = [];
           this.snackBar.open('Phones added successfully!', 'Close', {
             duration: 3000,
@@ -555,13 +537,12 @@ export class AssignComponent implements OnInit {
 
   triggerReAssignUpload() {
     if (this.selectedFileName && this.parsedPhones.length > 0) {
-      // Now call the updatePhonesBatch method with the stored data
       this.inventoryService.updatePhonesBatch(this.parsedPhones).subscribe(
         (data) => {
           console.log('Inventory (re)assigned successfully', data);
           this.loadInventory(this.currentPage, this.pageSize);
           this.addPhoneForm.reset();
-          this.clearFileInput(); // Clear the selected file info
+          this.clearFileInput();
           this.parsedPhones = [];
           this.snackBar.open('Inventory (re)assigned successfully!', 'Close', {
             duration: 3000,
@@ -592,7 +573,6 @@ export class AssignComponent implements OnInit {
   exportData(format: 'csv' | 'xlsx'): void {
     this.inventoryService.fetchAllInventory().subscribe(
       (response) => {
-        // Filter data based on selected parameters
         const filteredData = response.content.filter((phone) => {
           return (
             (!this.selectedDistributor ||
@@ -609,7 +589,6 @@ export class AssignComponent implements OnInit {
           );
         });
 
-        // Prepare data for export
         const dataToExport = this.formatDataForExport(filteredData);
 
         if (format === 'csv') {
@@ -636,7 +615,6 @@ export class AssignComponent implements OnInit {
             { header: 'Employee', key: 'employee', width: 20 },
           ];
 
-          // Add data rows including the age for each phone
           const dataWithAge = dataToExport.map((phone) => ({
             ...phone,
             date: phone.date ? this.formatDateForExport(phone.date) : 'N/A',

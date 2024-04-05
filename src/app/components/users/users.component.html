@@ -4,9 +4,7 @@
 
 
     <mat-card>
-      <!-- Login Form -->
       <div *ngIf="isLoginFormVisible">
-        <!-- <mat-card-title>Login</mat-card-title> -->
         <mat-card-content>
           <form [formGroup]="loginForm" (ngSubmit)="onLogin()">
             <mat-form-field appearance="fill">
@@ -22,12 +20,10 @@
               </button>
             </mat-form-field>
 
-
             <button color="primary" mat-raised-button class="login-button" type="submit">Login</button>
           </form>
         </mat-card-content>
       </div>
     </mat-card>
-
   </div>
 </div>

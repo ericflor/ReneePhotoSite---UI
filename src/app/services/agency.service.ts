@@ -6,6 +6,7 @@ import { environment } from 'src/environments/environment';
 @Injectable({
   providedIn: 'root'
 })
+
 export class AgencyService {
   private apiUrl = `${environment.apiUrl}/agencies`;
 
@@ -41,6 +42,4 @@ export class AgencyService {
     });
     return this.http.delete(`${this.apiUrl}/${id}`, { headers });
   }
-
-
 }

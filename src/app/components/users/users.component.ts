@@ -55,7 +55,6 @@ export class UsersComponent implements OnInit {
       .subscribe((strength) => (this.passwordStrength = strength));
   }
 
-  // Flip between login and registration forms
   toggleForm(): void {
     this.isLoginFormVisible = !this.isLoginFormVisible;
   }
@@ -111,7 +110,6 @@ export class UsersComponent implements OnInit {
         .authenticateUser(this.loginForm.value as LoginRequest)
         .subscribe(
           (response) => {
-            console.log('Login response:', response); // For debugging
             localStorage.removeItem('accessToken');
             this.snackBar.open('Login Successful!', 'Close', {
               duration: 3000,
@@ -119,11 +117,8 @@ export class UsersComponent implements OnInit {
               verticalPosition: 'top',
             });
 
-            // Store the token
             localStorage.setItem('accessToken', response.accessToken);
 
-            console.log('Navigating to inventory'); // For debugging
-            // Navigate to User Homepage
             this.router.navigate(['/upload']);
           },
           (error) => {

@@ -10,7 +10,6 @@ import { MatDialog } from '@angular/material/dialog';
 import { EditOrderFormComponent } from '../edit-order-form/edit-order-form.component';
 import { AuthGuardService } from 'src/app/services/authGuard.service';
 
-
 @Component({
   selector: 'app-orders',
   templateUrl: './orders.component.html',
@@ -48,21 +47,20 @@ export class OrdersComponent implements OnInit {
     this.loadOrders(this.currentPage, this.pageSize);
   }
 
-  // If logged in user is employee, they should only be able to see the table
   get isEmployee(): boolean {
     return this.hasRole('ROLE_EMPLOYEE');
   }
 
   get isRetailer(): boolean {
-    return this.hasRole('ROLE_RETAILER')
+    return this.hasRole('ROLE_RETAILER');
   }
 
   get isDistributor(): boolean {
-    return this.hasRole('ROLE_DISTRIBUTOR')
+    return this.hasRole('ROLE_DISTRIBUTOR');
   }
 
   get isAdmin(): boolean {
-    return this.hasRole('ROLE_ADMIN') // MASTER AGENT
+    return this.hasRole('ROLE_ADMIN');
   }
 
   get userRole(): string[] {
@@ -103,27 +101,25 @@ export class OrdersComponent implements OnInit {
   }
 
   loadFilteredOrders() {
-    // Start with all orders or a fresh fetch if you decide to not always filter locally
     let currentOrders = [...this.orders];
 
-    // Apply text filter
     if (this.filterValue) {
-      currentOrders = currentOrders.filter(order =>
-        Object.values(order).some(val => val.toString().toLowerCase().includes(this.filterValue))
+      currentOrders = currentOrders.filter((order) =>
+        Object.values(order).some((val) =>
+          val.toString().toLowerCase().includes(this.filterValue)
+        )
       );
     }
 
-    // Apply status filter
     if (this.selectedStatus) {
-      currentOrders = currentOrders.filter(order => order.status === this.selectedStatus);
+      currentOrders = currentOrders.filter(
+        (order) => order.status === this.selectedStatus
+      );
     }
 
-    // Update UI with filtered orders
     this.orders = currentOrders;
-    // Adjust the paginator
     this.totalElements = currentOrders.length;
   }
-
 
   clearFilters() {
     this.filterValue = '';
@@ -131,14 +127,13 @@ export class OrdersComponent implements OnInit {
     this.loadOrders(this.currentPage, this.pageSize);
   }
 
-
   createOrder(): void {
     const dialogRef = this.dialog.open(EditOrderFormComponent, {
       width: '777px',
-      data: { order: {Order} }
+      data: { order: { Order } },
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         this.orderService.addOrder(result).subscribe({
           next: (newOrder) => {
@@ -158,12 +153,11 @@ export class OrdersComponent implements OnInit {
               horizontalPosition: 'right',
               verticalPosition: 'top',
             });
-          }
+          },
         });
       }
     });
   }
-
 
   editOrder(order: Order): void {
     const dialogRef = this.dialog.open(EditOrderFormComponent, {
@@ -171,16 +165,17 @@ export class OrdersComponent implements OnInit {
       data: { order },
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         console.log('Dialog closed with result:', result);
-        // Ensure that the result includes the 'id'
         if (!result.id) {
           console.error('Order ID is missing in the result.');
           return;
         }
-        // Now result includes the 'id', so we can proceed to update the order
-        this.updateOrderStatus(result, `Order ${result.id} updated successfully.`);
+        this.updateOrderStatus(
+          result,
+          `Order ${result.id} updated successfully.`
+        );
       }
     });
   }
@@ -202,14 +197,12 @@ export class OrdersComponent implements OnInit {
   }
 
   private updateOrderStatus(order: Partial<Order>, message: string): void {
-    // Make sure updatedOrder includes an 'id' property that is a number, not 'undefined' or a string.
     if (!order.id) {
       console.error('Order ID is undefined.');
       return;
     }
     this.orderService.updateOrder(order.id!, order).subscribe({
       next: (updatedOrder) => {
-        // Update the orders array with the updated order status
         const index = this.orders.findIndex((o) => o.id === updatedOrder.id);
         if (index !== -1) {
           this.orders[index] = updatedOrder;
@@ -250,7 +243,6 @@ export class OrdersComponent implements OnInit {
 
     this.orderService.updateOrder(order.id!, updatedOrder).subscribe({
       next: (updatedOrder) => {
-        // Find and update the order in the local array
         const index = this.orders.findIndex((o) => o.id === updatedOrder.id);
         if (index !== -1) {
           this.orders[index] = updatedOrder;
@@ -263,12 +255,14 @@ export class OrdersComponent implements OnInit {
         });
       },
       error: (error) => {
-        let errorMessage = 'Failed to update tracking number'; // Default error message
+        let errorMessage = 'Failed to update tracking number';
         if (error.error && typeof error.error === 'string') {
-          // If the error object contains a string message, use it
           errorMessage = error.error;
-        } else if (error.error && error.error.error && typeof error.error.error === 'string') {
-          // For more deeply nested error messages
+        } else if (
+          error.error &&
+          error.error.error &&
+          typeof error.error.error === 'string'
+        ) {
           errorMessage = error.error.error;
         }
         this.snackBar.open(errorMessage, 'Close', {
@@ -279,5 +273,4 @@ export class OrdersComponent implements OnInit {
       },
     });
   }
-
 }

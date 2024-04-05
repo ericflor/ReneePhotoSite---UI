@@ -34,20 +34,16 @@ export class EditAgencyDialogComponent implements OnInit {
     });
   }
 
-  // Add this method
   closeDialog(): void {
     this.dialogRef.close(this.prepareFormValueBeforeClose());
   }
 
-  // Method to prepare the form value before closing the dialog
   prepareFormValueBeforeClose(): any {
     const formValue = this.editAgencyForm.value;
 
-    // Check if username has been changed
     if (formValue.username === this.originalUsername) {
-      // Clone formValue to not mutate the original object
       const resultValue = { ...formValue };
-      delete resultValue.username; // Remove username from the payload if not changed
+      delete resultValue.username;
       return resultValue;
     }
 

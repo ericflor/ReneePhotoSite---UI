@@ -3,18 +3,14 @@
   <form [formGroup]="reAssignForm" (ngSubmit)="submitReAssign()" class="inventory-form">
     <div class="phone-input-group">
 
-      <!-- IMEI Count Display -->
       <p class="imei-count-display">{{ imeiCount }} IMEI(s) ready to assign</p>
 
-      <!-- IMEI Select -->
       <mat-form-field appearance="fill" class="input-field">
         <mat-label>IMEIs (one per line)</mat-label>
         <textarea matInput formControlName="imeis" placeholder="Enter IMEIs, one per line" rows="10"></textarea>
       </mat-form-field>
 
-
       <div class="phone-input-group">
-        <!-- Master Agent Select -->
         <mat-form-field *ngIf="isAdmin" appearance="fill" class="input-field">
           <mat-label>Master Agent</mat-label>
           <mat-select formControlName="masterAgent">
@@ -22,7 +18,6 @@
           </mat-select>
         </mat-form-field>
 
-        <!-- Distributor Select -->
         <mat-form-field *ngIf="isAdmin || isDistributor" appearance="fill" class="input-field">
           <mat-label>Distributor</mat-label>
           <mat-select formControlName="distributor">
@@ -32,7 +27,6 @@
       </div>
 
       <div class="phone-input-group">
-        <!-- Retailer Select -->
         <mat-form-field *ngIf="isAdmin || isRetailer" appearance="fill" class="input-field">
           <mat-label>Retailer</mat-label>
           <mat-select formControlName="retailer">
@@ -40,7 +34,6 @@
           </mat-select>
         </mat-form-field>
 
-        <!-- Employee Select -->
         <div formGroupName="employee">
           <mat-form-field *ngIf="isAdmin || isEmployee" appearance="fill" class="input-field">
             <mat-label>Employee</mat-label>
@@ -56,19 +49,15 @@
       <button mat-button (click)="resetReAssignForm()" type="button">Clear Form</button>
       <button mat-raised-button color="primary" type="submit">Update Inventory</button>
     </div>
-
   </form>
-
 </div>
 
 
-<!-- Updated table to display BatchAssign records -->
 <div class="table-container">
   <div class="mat-elevation-z8">
     <h1 class="table-header">Batch Assign Records</h1>
     <table mat-table [dataSource]="batchAssigns" class="mat-elevation-z8">
 
-      <!-- Column Definitions -->
       <ng-container matColumnDef="batchCode">
         <th mat-header-cell *matHeaderCellDef> Batch Code </th>
         <td mat-cell *matCellDef="let element"> {{element.batchCode}} </td>
@@ -117,4 +106,3 @@
     </mat-paginator>
   </div>
 </div>
-

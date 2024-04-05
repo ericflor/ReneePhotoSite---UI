@@ -44,21 +44,20 @@ export class AgencyComponent implements OnInit {
     this.loadAgencies(this.currentPage, this.pageSize);
   }
 
-  // If logged in user is employee, they should only be able to see the table
   get isEmployee(): boolean {
     return this.hasRole('ROLE_EMPLOYEE');
   }
 
   get isRetailer(): boolean {
-    return this.hasRole('ROLE_RETAILER')
+    return this.hasRole('ROLE_RETAILER');
   }
 
   get isDistributor(): boolean {
-    return this.hasRole('ROLE_DISTRIBUTOR')
+    return this.hasRole('ROLE_DISTRIBUTOR');
   }
 
   get isAdmin(): boolean {
-    return this.hasRole('ROLE_ADMIN') // MASTER AGENT
+    return this.hasRole('ROLE_ADMIN');
   }
 
   get userRole(): string[] {
@@ -72,14 +71,13 @@ export class AgencyComponent implements OnInit {
   createAgency(): void {
     const dialogRef = this.dialog.open(CreateAgencyDialogComponent, {
       width: '777px',
-      // Add any data or configuration needed
     });
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         this.agencyService.createAgency(result).subscribe({
           next: (newAgency) => {
-            this.loadAgencies(this.currentPage, this.pageSize); // Refresh list
+            this.loadAgencies(this.currentPage, this.pageSize);
             this.snackBar.open('Agency created successfully', 'Close', {
               duration: 3000,
               horizontalPosition: 'right',
@@ -102,14 +100,14 @@ export class AgencyComponent implements OnInit {
   editAgency(agency: any): void {
     const dialogRef = this.dialog.open(EditAgencyDialogComponent, {
       width: '777px',
-      data: { agency }, // Passing the current agency data to the dialog
+      data: { agency },
     });
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         this.agencyService.updateAgency(agency.id, result).subscribe({
           next: () => {
-            this.loadAgencies(this.currentPage, this.pageSize); // Refresh list
+            this.loadAgencies(this.currentPage, this.pageSize);
             this.snackBar.open('Agency updated successfully', 'Close', {
               duration: 3000,
               horizontalPosition: 'right',
@@ -139,7 +137,6 @@ export class AgencyComponent implements OnInit {
   }
 
   blockAgency(id: number): void {
-    // Confirm before blocking
     const confirmation = confirm('Are you sure you want to block this agency?');
     if (confirmation) {
       this.agencyService.updateAgency(id, { blocked: true }).subscribe({
@@ -149,7 +146,7 @@ export class AgencyComponent implements OnInit {
             horizontalPosition: 'right',
             verticalPosition: 'top',
           });
-          this.loadAgencies(this.currentPage, this.pageSize); // Refresh the list to reflect the blocked status
+          this.loadAgencies(this.currentPage, this.pageSize);
         },
         error: () => {
           this.snackBar.open('Failed to block the agency', 'Close', {
@@ -163,7 +160,9 @@ export class AgencyComponent implements OnInit {
   }
 
   unblockAgency(id: number): void {
-    const confirmation = confirm('Are you sure you want to unblock this agency?');
+    const confirmation = confirm(
+      'Are you sure you want to unblock this agency?'
+    );
     if (confirmation) {
       this.agencyService.updateAgency(id, { blocked: false }).subscribe({
         next: () => {
@@ -172,7 +171,7 @@ export class AgencyComponent implements OnInit {
             horizontalPosition: 'right',
             verticalPosition: 'top',
           });
-          this.loadAgencies(this.currentPage, this.pageSize); // Refresh the list to reflect the unblocked status
+          this.loadAgencies(this.currentPage, this.pageSize);
         },
         error: () => {
           this.snackBar.open('Failed to unblock the agency', 'Close', {
@@ -180,11 +179,10 @@ export class AgencyComponent implements OnInit {
             horizontalPosition: 'right',
             verticalPosition: 'top',
           });
-        }
+        },
       });
     }
   }
-
 
   loadAgencies(page: number, size: number): void {
     this.agencyService.getAllAgencies(page, size).subscribe((data) => {
@@ -200,7 +198,9 @@ export class AgencyComponent implements OnInit {
   }
 
   deleteAgency(id: number): void {
-    const confirmation = confirm('Are you sure you want to delete this agency?');
+    const confirmation = confirm(
+      'Are you sure you want to delete this agency?'
+    );
     if (confirmation) {
       this.agencyService.deleteAgency(id).subscribe({
         next: () => {
@@ -209,13 +209,15 @@ export class AgencyComponent implements OnInit {
             horizontalPosition: 'right',
             verticalPosition: 'top',
           });
-          this.loadAgencies(this.currentPage, this.pageSize); // Refresh the list after deletion
+          this.loadAgencies(this.currentPage, this.pageSize);
         },
         error: (error) => {
           console.error('There was an error!', error);
           let errorMessage = 'Failed to delete agency. Please try again later.';
           if (error.error) {
-            errorMessage = error.error.message || 'Failed to delete agency. You do not have the necessary permissions to perform this action.';
+            errorMessage =
+              error.error.message ||
+              'Failed to delete agency. You do not have the necessary permissions to perform this action.';
           }
           this.snackBar.open(errorMessage, 'Close', {
             duration: 3000,
@@ -226,5 +228,4 @@ export class AgencyComponent implements OnInit {
       });
     }
   }
-
 }

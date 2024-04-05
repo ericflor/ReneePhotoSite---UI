@@ -31,6 +31,7 @@ import { EditPhoneFormComponent } from '../edit-phone-form/edit-phone-form.compo
   templateUrl: './upload.component.html',
   styleUrls: ['./upload.component.css'],
 })
+
 export class UploadComponent implements OnInit {
   phones: Phone[] = [];
   imeiList: string[] = [];
@@ -43,6 +44,20 @@ export class UploadComponent implements OnInit {
   selectedFileName: string = '';
   parsedPhones: any[] = [];
   employeesList: Agency[] = [];
+  pageSize = 10;
+  currentPage = 0;
+  addPhoneForm!: FormGroup;
+  reAssignForm!: FormGroup;
+  showForm: boolean = false;
+  showTable: boolean = false;
+  selectedDistributor?: string;
+  selectedStatus?: string;
+  selectedType?: string;
+  selectedModel?: string;
+  selectedMasterAgent?: string;
+  selectedRetailer?: string;
+  selectedEmployee?: string;
+  dateRangeForm!: FormGroup;
   displayedColumns: string[] = [
     'imei',
     'status',
@@ -58,20 +73,6 @@ export class UploadComponent implements OnInit {
     'delete',
   ];
   totalElements = 0;
-  pageSize = 10;
-  currentPage = 0;
-  addPhoneForm!: FormGroup;
-  reAssignForm!: FormGroup;
-  showForm: boolean = false;
-  showTable: boolean = false;
-  selectedDistributor?: string;
-  selectedStatus?: string;
-  selectedType?: string;
-  selectedModel?: string;
-  selectedMasterAgent?: string;
-  selectedRetailer?: string;
-  selectedEmployee?: string;
-  dateRangeForm!: FormGroup;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild('fileInput') fileInput!: ElementRef;
@@ -90,10 +91,9 @@ export class UploadComponent implements OnInit {
 
     this.reAssignForm = this.initReAssignFields();
 
-    // Initialize the dateRangeForm
     this.dateRangeForm = this.fb.group({
       startDate: ['', Validators.required],
-      endDate: [''], // End date is optional to allow filtering by a single date or a range
+      endDate: [''],
     });
   }
 
@@ -104,33 +104,40 @@ export class UploadComponent implements OnInit {
   openEditDialog(phone: Phone): void {
     const dialogRef = this.dialog.open(EditPhoneFormComponent, {
       width: '666px',
-      data: { phone }
+      data: { phone },
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe((result) => {
       if (result && phone.imei) {
-        // Now phone.imei is guaranteed to be a string and not undefined
         this.inventoryService.updatePhone(phone.imei, result).subscribe({
           next: (updatedPhone) => {
             console.log('Phone updated successfully', updatedPhone);
             this.loadInventory(this.currentPage, this.pageSize);
-            this.snackBar.open('Phone updated successfully!', 'Close', { duration: 3000 });
+            this.snackBar.open('Phone updated successfully!', 'Close', {
+              duration: 3000,
+            });
           },
           error: (error) => {
             console.error('Error updating phone', error);
-            this.snackBar.open('Error updating phone. Please try again.', 'Close', { duration: 3000 });
-          }
+            this.snackBar.open(
+              'Error updating phone. Please try again.',
+              'Close',
+              { duration: 3000 }
+            );
+          },
         });
       } else {
-        // Handle the case where phone.imei is undefined, or the dialog was closed without saving
-        console.error('IMEI is undefined or the dialog was closed without saving');
-        this.snackBar.open('Error: IMEI is undefined or no changes were made.', 'Close', { duration: 3000 });
+        console.error(
+          'IMEI is undefined or the dialog was closed without saving'
+        );
+        this.snackBar.open(
+          'Error: IMEI is undefined or no changes were made.',
+          'Close',
+          { duration: 3000 }
+        );
       }
     });
   }
-
-
-
 
   filterInventory(): void {
     if (this.dateRangeForm.valid) {
@@ -138,62 +145,52 @@ export class UploadComponent implements OnInit {
       const startDateObj = new Date(startDate);
       let endDateObj = endDate ? new Date(endDate) : new Date();
 
-      // Adjust endDateObj to the end of the day if endDate is provided
       if (endDate) {
         endDateObj.setHours(23, 59, 59, 999);
       }
 
-      // Filter the phones array based on the date range
-      const filteredPhones = this.phones.filter(phone => {
+      const filteredPhones = this.phones.filter((phone) => {
         if (!phone.date) {
-          // If phone.date is undefined or empty, exclude the phone from the filtered list
           return false;
         }
 
-        // Now we are sure phone.date is defined, parse it
         const phoneDate = this.parseDateString(phone.date);
 
         return phoneDate >= startDateObj && phoneDate <= endDateObj;
       });
 
-      // Update the component state with the filtered data
       this.phones = filteredPhones;
       this.totalElements = filteredPhones.length;
-      this.currentPage = 0; // Reset to the first page
+      this.currentPage = 0;
 
-      // Reset the paginator to the first page if applicable
       if (this.paginator) {
         this.paginator.firstPage();
       }
     } else {
-      this.snackBar.open('Please enter at least a start date to filter by.', 'Close', { duration: 3000 });
+      this.snackBar.open(
+        'Please enter at least a start date to filter by.',
+        'Close',
+        { duration: 3000 }
+      );
     }
   }
 
-  // Helper function to parse date strings
   parseDateString(dateString: string): Date {
-    // Assuming the date string format is "YYYY-MM-DD". Adjust this logic based on your actual format
     const parts = dateString.split('-');
     const year = parseInt(parts[0], 10);
-    const month = parseInt(parts[1], 10) - 1; // JavaScript months are 0-based
+    const month = parseInt(parts[1], 10) - 1;
     const day = parseInt(parts[2], 10);
 
     return new Date(year, month, day);
   }
 
   resetFilters(): void {
-    // Reset any filter form controls or filter criteria here
     this.dateRangeForm.reset();
-    this.clearFilters(); // Call clearFilters if it resets other filter criteria
+    this.clearFilters();
 
-    // Reload the original inventory data
-    this.loadInventory(0, this.pageSize); // Resets to the first page with initial page size
+    this.loadInventory(0, this.pageSize);
   }
 
-
-
-
-  // If logged in user is employee, they should only be able to see the table
   get isEmployee(): boolean {
     return this.hasRole('ROLE_EMPLOYEE');
   }
@@ -223,14 +220,13 @@ export class UploadComponent implements OnInit {
       imei: ['', Validators.required],
       type: ['', Validators.required],
       model: ['', Validators.required],
-      masterAgent: [''], // Optional field
-      distributor: [''], // Optional field
-      retailer: [''], // Optional field
+      masterAgent: [''],
+      distributor: [''],
+      retailer: [''],
     });
   }
 
   get imeiCount(): number {
-    // Split by new line and filter out empty lines
     return (
       this.reAssignForm
         .get('imeis')
@@ -241,7 +237,7 @@ export class UploadComponent implements OnInit {
 
   initReAssignFields(): FormGroup {
     return this.fb.group({
-      imeis: ['', Validators.required], // Multiple IMEIs
+      imeis: ['', Validators.required],
       masterAgent: [''],
       distributor: [''],
       retailer: [''],
@@ -252,9 +248,8 @@ export class UploadComponent implements OnInit {
   }
 
   resetReAssignForm(): void {
-    // Resets the form fields to empty values or initial state
     this.reAssignForm.reset({
-      imei: '', // Resetting to empty or initial value
+      imei: '',
       masterAgent: '',
       distributor: '',
       retailer: '',
@@ -284,8 +279,6 @@ export class UploadComponent implements OnInit {
         this.pageSize = data.size;
         this.currentPage = data.number;
 
-        // Now fetch all agencies and other mat select dropdown data
-        // Populate IMEI, Master Agent, Distributor, Retailer & Employee lists for dropdowns, filtering out undefined values
         this.fetchAllAgencies();
         this.loadDropdownData();
 
@@ -330,7 +323,6 @@ export class UploadComponent implements OnInit {
               .filter((retailer): retailer is string => !!retailer)
           )
         );
-        // Populate statusList, typeList, and modelList
         this.statusList = Array.from(
           new Set(
             phones
@@ -364,7 +356,6 @@ export class UploadComponent implements OnInit {
       (response) => {
         const agencies = response.content;
 
-        // Map over agencies to create a unique list based on ID
         const uniqueAgencies = new Map<number, Agency>();
         agencies.forEach((agency: Agency) => {
           if (agency && !uniqueAgencies.has(agency.id!)) {
@@ -373,7 +364,6 @@ export class UploadComponent implements OnInit {
         });
 
         this.employeesList = Array.from(uniqueAgencies.values());
-        // console.log('AGENCIES LIST:', this.employeesList);
       },
       (error) => {
         console.error('Error fetching agencies:', error);
@@ -386,7 +376,6 @@ export class UploadComponent implements OnInit {
   }
 
   resetForm(): void {
-    // Resets the form to its initial state, optionally clearing the form array
     while ((this.addPhoneForm.get('phones') as FormArray).length !== 0) {
       (this.addPhoneForm.get('phones') as FormArray).removeAt(0);
     }
@@ -395,42 +384,58 @@ export class UploadComponent implements OnInit {
 
   submitPhones(): void {
     if (this.addPhoneForm.valid) {
-      const batchPhones: Phone[] | {
-        imei: any; // Remove any leading/trailing whitespace
-        type: any; model: any; masterAgent: any; distributor: any; retailer: any;
-      }[] = [];
-      // Iterate through each phone form group in the FormArray
-      this.addPhoneForm.value.phones.forEach((phoneFormGroup: { imei: string; type: any; model: any; masterAgent: any; distributor: any; retailer: any; }) => {
-        // Extract and split the imei field value by newlines
-        const imeis = phoneFormGroup.imei.split('\n');
-        imeis.forEach((imei: string) => {
-          if (imei.trim()) {
-            // Construct a phone object for each non-empty IMEI
-            const phone = {
-              imei: imei.trim(), // Remove any leading/trailing whitespace
-              type: phoneFormGroup.type,
-              model: phoneFormGroup.model,
-              masterAgent: phoneFormGroup.masterAgent,
-              distributor: phoneFormGroup.distributor,
-              retailer: phoneFormGroup.retailer,
-            };
-            batchPhones.push(phone);
-          }
-        });
-      });
-
-      // Now, batchPhones contains an array of phone objects, one for each IMEI
+      const batchPhones:
+        | Phone[]
+        | {
+            imei: any;
+            type: any;
+            model: any;
+            masterAgent: any;
+            distributor: any;
+            retailer: any;
+          }[] = [];
+      this.addPhoneForm.value.phones.forEach(
+        (phoneFormGroup: {
+          imei: string;
+          type: any;
+          model: any;
+          masterAgent: any;
+          distributor: any;
+          retailer: any;
+        }) => {
+          const imeis = phoneFormGroup.imei.split('\n');
+          imeis.forEach((imei: string) => {
+            if (imei.trim()) {
+              const phone = {
+                imei: imei.trim(),
+                type: phoneFormGroup.type,
+                model: phoneFormGroup.model,
+                masterAgent: phoneFormGroup.masterAgent,
+                distributor: phoneFormGroup.distributor,
+                retailer: phoneFormGroup.retailer,
+              };
+              batchPhones.push(phone);
+            }
+          });
+        }
+      );
 
       this.inventoryService.addPhonesBatch(batchPhones).subscribe(
-        data => {
+        (data) => {
           console.log('Phones added successfully', data);
           this.loadInventory(this.currentPage, this.pageSize);
           this.addPhoneForm.reset();
-          this.snackBar.open('Phones added successfully!', 'Close', { duration: 3000 });
+          this.snackBar.open('Phones added successfully!', 'Close', {
+            duration: 3000,
+          });
         },
-        error => {
+        (error) => {
           console.error('Error adding phones', error);
-          this.snackBar.open('Error adding phones. Please try again.', 'Close', { duration: 3000 });
+          this.snackBar.open(
+            'Error adding phones. Please try again.',
+            'Close',
+            { duration: 3000 }
+          );
         }
       );
     }
@@ -506,7 +511,7 @@ export class UploadComponent implements OnInit {
           this.snackBar.open('Phone deleted successfully', 'Close', {
             duration: 3000,
           });
-          this.loadInventory(this.currentPage, this.pageSize); // Refresh the list
+          this.loadInventory(this.currentPage, this.pageSize);
         },
         error: (error) => {
           console.error('There was an error!', error);
@@ -527,7 +532,6 @@ export class UploadComponent implements OnInit {
   removeLastPhoneInput(): void {
     const control = <FormArray>this.addPhoneForm.get('phones');
     if (control.length > 1) {
-      // Ensure at least one input remains
       control.removeAt(control.length - 1);
     }
   }
@@ -545,7 +549,7 @@ export class UploadComponent implements OnInit {
   handleFileInput(files: FileList) {
     const file = files.item(0);
     if (file) {
-      this.selectedFileName = file.name; // Update the selected file name
+      this.selectedFileName = file.name;
       this.parseFile(file);
     }
   }
@@ -564,7 +568,6 @@ export class UploadComponent implements OnInit {
   onDragOver(event: DragEvent) {
     event.preventDefault();
     event.stopPropagation();
-    // Add visual feedback
   }
 
   onDrop(event: DragEvent) {
@@ -573,12 +576,9 @@ export class UploadComponent implements OnInit {
     if (event.dataTransfer && event.dataTransfer.files.length > 0) {
       this.handleFileInput(event.dataTransfer.files);
     }
-    // Remove visual feedback
   }
 
-  onDragLeave(event: DragEvent) {
-    // Remove visual feedback
-  }
+  onDragLeave(event: DragEvent) {}
 
   parseFile(file: File) {
     if (file.type.includes('excel') || file.type.includes('spreadsheetml')) {
@@ -596,7 +596,7 @@ export class UploadComponent implements OnInit {
       const wsname: string = wb.SheetNames[0];
       const ws: XLSX.WorkSheet = wb.Sheets[wsname];
       const data = XLSX.utils.sheet_to_json(ws, { header: 1 });
-      this.processData(data); // Implement this method to process your data
+      this.processData(data);
     };
     reader.readAsBinaryString(file);
   }
@@ -605,21 +605,19 @@ export class UploadComponent implements OnInit {
     Papa.parse(file, {
       complete: (result: any) => {
         console.log('Parsed CSV:', result);
-        this.processData(result.data); // Implement this method to process data
+        this.processData(result.data);
       },
     });
   }
 
   processData(data: any[]) {
-    // Assuming the first row is headers and the rest are data rows
-    const headers = data[0].map((header: string) => header.toLowerCase()); // Normalize headers to lowercase
+    const headers = data[0].map((header: string) => header.toLowerCase());
     const rows = data.slice(1);
 
     const phones = rows.map((row) => {
       let phone: any = {};
       row.forEach((cell: any, index: number) => {
         const header = headers[index];
-        // Use lowercase in your switch-case to match the normalized headers
         switch (header) {
           case 'imei':
             phone.imei = cell;
@@ -676,13 +674,12 @@ export class UploadComponent implements OnInit {
 
   triggerUpload() {
     if (this.selectedFileName && this.parsedPhones.length > 0) {
-      // Now call the addPhonesBatch method with the stored data
       this.inventoryService.addPhonesBatch(this.parsedPhones).subscribe(
         (data) => {
           console.log('Phones added successfully', data);
           this.loadInventory(this.currentPage, this.pageSize);
           this.addPhoneForm.reset();
-          this.clearFileInput(); // Clear the selected file info
+          this.clearFileInput();
           this.parsedPhones = [];
           this.snackBar.open('Phones added successfully!', 'Close', {
             duration: 3000,
@@ -712,13 +709,12 @@ export class UploadComponent implements OnInit {
 
   triggerReAssignUpload() {
     if (this.selectedFileName && this.parsedPhones.length > 0) {
-      // Now call the updatePhonesBatch method with the stored data
       this.inventoryService.updatePhonesBatch(this.parsedPhones).subscribe(
         (data) => {
           console.log('Inventory (re)assigned successfully', data);
           this.loadInventory(this.currentPage, this.pageSize);
           this.addPhoneForm.reset();
-          this.clearFileInput(); // Clear the selected file info
+          this.clearFileInput();
           this.parsedPhones = [];
           this.snackBar.open('Inventory (re)assigned successfully!', 'Close', {
             duration: 3000,
@@ -749,7 +745,6 @@ export class UploadComponent implements OnInit {
   exportData(format: 'csv' | 'xlsx'): void {
     this.inventoryService.fetchAllInventory().subscribe(
       (response) => {
-        // Filter data based on selected parameters
         const filteredData = response.content.filter((phone) => {
           return (
             (!this.selectedDistributor ||
@@ -766,7 +761,6 @@ export class UploadComponent implements OnInit {
           );
         });
 
-        // Prepare data for export
         const dataToExport = this.formatDataForExport(filteredData);
 
         if (format === 'csv') {
@@ -793,13 +787,11 @@ export class UploadComponent implements OnInit {
             { header: 'Employee', key: 'employee', width: 20 },
           ];
 
-          // Add data rows including the age for each phone
           const dataWithAge = dataToExport.map((phone) => ({
             ...phone,
             date: phone.date ? this.formatDateForExport(phone.date) : 'N/A',
-            age: phone.date ? this.calculateAge(phone.date) : 'N/A', // Calculate the age here
+            age: phone.date ? this.calculateAge(phone.date) : 'N/A',
           }));
-          // Add data rows
           ws.addRows(dataWithAge);
 
           wb.xlsx.writeBuffer().then((buffer) => {
@@ -837,12 +829,11 @@ export class UploadComponent implements OnInit {
       distributor: phone.distributor ?? '',
       retailer: phone.retailer ?? '',
       date: phone.date ? this.formatDateForExport(phone.date) : 'N/A',
-      age: phone.date ? this.calculateAge(phone.date) : 'N/A', // Use 'N/A' if date is undefined
-      employee: phone.employee?.username ?? 'N/A', // Safe navigation with nullish coalescing
+      age: phone.date ? this.calculateAge(phone.date) : 'N/A',
+      employee: phone.employee?.username ?? 'N/A',
     }));
   }
 
-  // Helper function to format the date for export
   formatDateForExport(dateString: string): string {
     const date = new Date(dateString);
     const year = date.getFullYear();

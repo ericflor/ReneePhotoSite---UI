@@ -30,7 +30,6 @@ export class EditPhoneFormComponent {
       masterAgent: [data.phone.masterAgent],
       distributor: [data.phone.distributor],
       retailer: [data.phone.retailer],
-      // employee: [data.phone.employee?.name, Validators.required],
       date: [formattedDate, Validators.required]
     });
   }
@@ -39,7 +38,6 @@ export class EditPhoneFormComponent {
     if (this.editForm.valid) {
       let formData = this.editForm.value;
       if (formData.date) {
-        // Convert to UTC midnight to avoid timezone shifts
         formData.date = new Date(formData.date + 'T00:00:00Z').toISOString();
       }
       this.dialogRef.close(formData);

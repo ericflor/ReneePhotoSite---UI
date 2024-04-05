@@ -5,10 +5,9 @@
   padding: 20px;
 }
 
-
 .logo-img {
-  max-width: 400px; /* Adjust the logo size */
-  margin-bottom: 10%; /* Increase space between logo and form */
+  max-width: 400px;
+  margin-bottom: 10%;
 }
 
 .login-form-container {
@@ -16,82 +15,76 @@
   flex-direction: column;
   align-items: center;
   padding-bottom: 50%;
-  width: 100%; /* Makes the container responsive */
+  width: 100%;
 }
 
-/* Additional styling for improved layout and responsiveness */
 :host {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 100vh; /* Ensures the login page takes up the full viewport height */
-  background-color: #2C3E50; /* Background color matching the navbar */
+  min-height: 100vh;
+  background-color: #2c3e50;
 }
 
-/* Ensure form fields and buttons fit well within the container */
-mat-form-field, .login-button {
-  width: 100%; /* Ensures form fields and buttons expand to fill the container */
-}
-
-/* Enhances the appearance of the login button */
+mat-form-field,
 .login-button {
-  margin-top: 20px; /* Adds some space above the login button */
+  width: 100%;
 }
 
-/* Style for the login and register buttons */
-.login-button, .register-button {
-  color: white; /* Adjust text color as needed */
-  border: none; /* Remove border if any */
+.login-button {
+  margin-top: 20px;
 }
 
-/* Change color on hover */
-.login-button:hover, .register-button:hover {
-  background-color: rgb(64, 126, 113); /* Slightly darker shade for hover effect */
+.login-button,
+.register-button {
+  color: white;
+  border: none;
 }
 
-/* Targeting the mat-card within the login-form-container */
+.login-button:hover,
+.register-button:hover {
+  background-color: rgb(64, 126, 113);
+}
+
 .login-form-container mat-card {
-  background-color: #2C3E50; /* Setting the background color to match the main background */
-  color: white; /* Changing text color to white for better visibility */
+  background-color: #2c3e50;
+  color: white;
 }
 
-/* Styling the mat-form-field label and input text to white for visibility */
 ::ng-deep .login-form-container mat-form-field .mat-form-field-label,
 ::ng-deep .login-form-container mat-form-field .mat-input-element {
-  color: white; /* Makes the text color white */
+  color: white;
 }
 
-/* Changing the mat-form-field underline and placeholder to white */
-::ng-deep .login-form-container mat-form-field.mat-focused .mat-form-field-ripple,
-::ng-deep .login-form-container mat-form-field.mat-focused .mat-form-field-label {
-  color: white; /* Changes to white when the field is focused */
+::ng-deep
+  .login-form-container
+  mat-form-field.mat-focused
+  .mat-form-field-ripple,
+::ng-deep
+  .login-form-container
+  mat-form-field.mat-focused
+  .mat-form-field-label {
+  color: white;
 }
 
-/* Adjusting the mat-icon color to white for visibility */
 ::ng-deep .login-form-container mat-icon {
   color: white;
 }
 
-/* Styling the login button to better match the theme */
 .login-button {
-  /* background-color: rgb(64, 126, 113); */
-  color: white; /* Button text color */
+  color: white;
 }
 
-/* Optionally, if you want the card to have no elevation/shadow */
 ::ng-deep .login-form-container mat-card {
-  box-shadow: none; /* Removes the shadow */
+  box-shadow: none;
 }
 
-
-/* Hide the browser's default password reveal icon */
 input::-ms-reveal,
 input::-ms-clear {
   display: none;
 }
 
-/* For Chrome's autofill feature */
 input[type="password"]::-webkit-credentials-auto-fill-button {
   visibility: hidden;
   position: absolute;
@@ -103,10 +96,11 @@ input[type="password"]::-webkit-credentials-auto-fill-button {
   display: none;
 }
 
-:host ::ng-deep .login-form-container input[type="password"]::-webkit-credentials-auto-fill-button {
+:host
+  ::ng-deep
+  .login-form-container
+  input[type="password"]::-webkit-credentials-auto-fill-button {
   visibility: hidden;
   position: absolute;
   right: 0;
 }
-
-

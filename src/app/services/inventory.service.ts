@@ -14,12 +14,10 @@ export class InventoryService {
   constructor(private http: HttpClient) {}
 
   getAllPhones(page: number, size: number): Observable<any> {
-    // Adjust the return type based on your data model
     const headers = new HttpHeaders({
       Authorization: `Bearer ${this.getAuthToken()}`,
     });
 
-    // Create HttpParams with page and size
     const params = new HttpParams()
       .set('page', page.toString())
       .set('size', size.toString());
@@ -37,13 +35,11 @@ export class InventoryService {
   }
 
   updatePhone(imei: string, phoneDetails: Phone): Observable<any> {
-    // Change return type to any or a specific interface
     const headers = new HttpHeaders({
       'Content-Type': 'application/json',
       Authorization: `Bearer ${this.getAuthToken()}`,
     });
     return this.http.patch<any>(`${this.apiUrl}/${imei}`, phoneDetails, {
-      // Use any or a specific interface
       headers,
     });
   }
@@ -85,7 +81,7 @@ export class InventoryService {
       Authorization: `Bearer ${this.getAuthToken()}`,
     });
 
-    const params = new HttpParams().set('page', '0').set('size', '1000000000'); // Set this to a value you're sure will cover all records
+    const params = new HttpParams().set('page', '0').set('size', '1000000000');
 
     return this.http.get<PaginatedResponse<Phone>>(this.apiUrl, {
       headers,

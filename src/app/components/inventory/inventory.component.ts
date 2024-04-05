@@ -39,19 +39,6 @@ export class InventoryComponent implements OnInit {
   selectedFileName: string = '';
   parsedPhones: any[] = [];
   employeesList: Agency[] = [];
-  displayedColumns: string[] = [
-    'imei',
-    'status',
-    'type',
-    'model',
-    'masterAgent',
-    'distributor',
-    'retailer',
-    'employee',
-    'date',
-    'age',
-    'delete',
-  ];
   totalElements = 0;
   pageSize = 10;
   currentPage = 0;
@@ -66,6 +53,19 @@ export class InventoryComponent implements OnInit {
   selectedMasterAgent?: string;
   selectedRetailer?: string;
   selectedEmployee?: string;
+  displayedColumns: string[] = [
+    'imei',
+    'status',
+    'type',
+    'model',
+    'masterAgent',
+    'distributor',
+    'retailer',
+    'employee',
+    'date',
+    'age',
+    'delete',
+  ];
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild('fileInput') fileInput!: ElementRef;
@@ -88,7 +88,6 @@ export class InventoryComponent implements OnInit {
     this.loadInventory(this.currentPage, this.pageSize);
   }
 
-  // If logged in user is employee, they should only be able to see the table
   get isEmployee(): boolean {
     return this.authService.hasRole('ROLE_EMPLOYEE');
   }
@@ -98,20 +97,19 @@ export class InventoryComponent implements OnInit {
       imei: ['', Validators.required],
       type: ['', Validators.required],
       model: ['', Validators.required],
-      masterAgent: [''], // Optional field
-      distributor: [''], // Optional field
-      retailer: [''], // Optional field
+      masterAgent: [''],
+      distributor: [''],
+      retailer: [''],
     });
   }
 
   get imeiCount(): number {
-    // Split by new line and filter out empty lines
     return this.reAssignForm.get('imeis')?.value.split('\n').filter((line: string) => line.trim()).length || 0;
   }
 
   initReAssignFields(): FormGroup {
     return this.fb.group({
-      imeis: ['', Validators.required], // Multiple IMEIs
+      imeis: ['', Validators.required],
       masterAgent: [''],
       distributor: [''],
       retailer: [''],
@@ -122,9 +120,8 @@ export class InventoryComponent implements OnInit {
   }
 
   resetReAssignForm(): void {
-    // Resets the form fields to empty values or initial state
     this.reAssignForm.reset({
-      imei: '', // Resetting to empty or initial value
+      imei: '',
       masterAgent: '',
       distributor: '',
       retailer: '',
@@ -154,8 +151,6 @@ export class InventoryComponent implements OnInit {
         this.pageSize = data.size;
         this.currentPage = data.number;
 
-        // Now fetch all agencies and other mat select dropdown data
-        // Populate IMEI, Master Agent, Distributor, Retailer & Employee lists for dropdowns, filtering out undefined values
         this.fetchAllAgencies();
         this.loadDropdownData();
 
@@ -200,7 +195,6 @@ export class InventoryComponent implements OnInit {
               .filter((retailer): retailer is string => !!retailer)
           )
         );
-        // Populate statusList, typeList, and modelList
         this.statusList = Array.from(
           new Set(
             phones
@@ -234,7 +228,6 @@ export class InventoryComponent implements OnInit {
       (response) => {
         const agencies = response.content;
 
-        // Map over agencies to create a unique list based on ID
         const uniqueAgencies = new Map<number, Agency>();
         agencies.forEach((agency: Agency) => {
           if (agency && !uniqueAgencies.has(agency.id!)) {
@@ -256,7 +249,6 @@ export class InventoryComponent implements OnInit {
   }
 
   resetForm(): void {
-    // Resets the form to its initial state, optionally clearing the form array
     while ((this.addPhoneForm.get('phones') as FormArray).length !== 0) {
       (this.addPhoneForm.get('phones') as FormArray).removeAt(0);
     }
@@ -291,33 +283,26 @@ export class InventoryComponent implements OnInit {
     if (this.reAssignForm.valid) {
       const formValues = this.reAssignForm.value;
 
-      // Parse the textarea content into an array of trimmed IMEIs
       const imeis = formValues.imeis.split('\n').map((imei: string) => imei.trim()).filter((imei: any) => imei);
 
-      // Initialize a counter to keep track of processed IMEIs for feedback
       let processedCount = 0;
 
-      // Generate a unique batch ID, e.g., using a timestamp
       const batchId = new Date().getTime().toString();
 
-      // Loop through each IMEI to validate and update
       imeis.forEach((imei: string) => {
         const updatePayload = {
           imei: imei,
           ...(formValues.employee.id && { employee: formValues.employee }),
         };
 
-        // Conditionally add other fields if they have values
         if (formValues.masterAgent) updatePayload.masterAgent = formValues.masterAgent;
         if (formValues.distributor) updatePayload.distributor = formValues.distributor;
         if (formValues.retailer) updatePayload.retailer = formValues.retailer;
 
-        // Call the service method to update the phone details
         this.inventoryService.updatePhone(imei, updatePayload).subscribe({
           next: (response) => {
             processedCount++;
             console.log(`Update successful for IMEI: ${imei}`, response);
-            // Provide feedback when all IMEIs have been processed
             if (processedCount === imeis.length) {
               this.snackBar.open(`${processedCount} IMEI(s) updated successfully!`, 'Close', {
                 duration: 3000,
@@ -347,7 +332,7 @@ export class InventoryComponent implements OnInit {
           this.snackBar.open('Phone deleted successfully', 'Close', {
             duration: 3000,
           });
-          this.loadInventory(this.currentPage, this.pageSize); // Refresh the list
+          this.loadInventory(this.currentPage, this.pageSize);
         },
         error: (error) => {
           console.error('There was an error!', error);
@@ -368,7 +353,6 @@ export class InventoryComponent implements OnInit {
   removeLastPhoneInput(): void {
     const control = <FormArray>this.addPhoneForm.get('phones');
     if (control.length > 1) {
-      // Ensure at least one input remains
       control.removeAt(control.length - 1);
     }
   }
@@ -386,7 +370,7 @@ export class InventoryComponent implements OnInit {
   handleFileInput(files: FileList) {
     const file = files.item(0);
     if (file) {
-      this.selectedFileName = file.name; // Update the selected file name
+      this.selectedFileName = file.name;
       this.parseFile(file);
     }
   }
@@ -414,11 +398,9 @@ export class InventoryComponent implements OnInit {
     if (event.dataTransfer && event.dataTransfer.files.length > 0) {
       this.handleFileInput(event.dataTransfer.files);
     }
-    // Remove visual feedback
   }
 
   onDragLeave(event: DragEvent) {
-    // Remove visual feedback
   }
 
   parseFile(file: File) {
@@ -437,7 +419,7 @@ export class InventoryComponent implements OnInit {
       const wsname: string = wb.SheetNames[0];
       const ws: XLSX.WorkSheet = wb.Sheets[wsname];
       const data = XLSX.utils.sheet_to_json(ws, { header: 1 });
-      this.processData(data); // Implement this method to process your data
+      this.processData(data);
     };
     reader.readAsBinaryString(file);
   }
@@ -446,21 +428,19 @@ export class InventoryComponent implements OnInit {
     Papa.parse(file, {
       complete: (result: any) => {
         console.log('Parsed CSV:', result);
-        this.processData(result.data); // Implement this method to process data
+        this.processData(result.data);
       },
     });
   }
 
   processData(data: any[]) {
-    // Assuming the first row is headers and the rest are data rows
-    const headers = data[0].map((header: string) => header.toLowerCase()); // Normalize headers to lowercase
+    const headers = data[0].map((header: string) => header.toLowerCase());
     const rows = data.slice(1);
 
     const phones = rows.map((row) => {
       let phone: any = {};
       row.forEach((cell: any, index: number) => {
         const header = headers[index];
-        // Use lowercase in your switch-case to match the normalized headers
         switch (header) {
           case 'imei':
             phone.imei = cell;
@@ -517,13 +497,12 @@ export class InventoryComponent implements OnInit {
 
   triggerUpload() {
     if (this.selectedFileName && this.parsedPhones.length > 0) {
-      // Now call the addPhonesBatch method with the stored data
       this.inventoryService.addPhonesBatch(this.parsedPhones).subscribe(
         (data) => {
           console.log('Phones added successfully', data);
           this.loadInventory(this.currentPage, this.pageSize);
           this.addPhoneForm.reset();
-          this.clearFileInput(); // Clear the selected file info
+          this.clearFileInput();
           this.parsedPhones = [];
           this.snackBar.open('Phones added successfully!', 'Close', {
             duration: 3000,
@@ -553,13 +532,12 @@ export class InventoryComponent implements OnInit {
 
   triggerReAssignUpload() {
     if (this.selectedFileName && this.parsedPhones.length > 0) {
-      // Now call the updatePhonesBatch method with the stored data
       this.inventoryService.updatePhonesBatch(this.parsedPhones).subscribe(
         (data) => {
           console.log('Inventory (re)assigned successfully', data);
           this.loadInventory(this.currentPage, this.pageSize);
           this.addPhoneForm.reset();
-          this.clearFileInput(); // Clear the selected file info
+          this.clearFileInput();
           this.parsedPhones = [];
           this.snackBar.open('Inventory (re)assigned successfully!', 'Close', {
             duration: 3000,
@@ -590,7 +568,6 @@ export class InventoryComponent implements OnInit {
   exportData(format: 'csv' | 'xlsx'): void {
     this.inventoryService.fetchAllInventory().subscribe(
       (response) => {
-        // Filter data based on selected parameters
         const filteredData = response.content.filter((phone) => {
           return (
             (!this.selectedDistributor ||
@@ -607,7 +584,6 @@ export class InventoryComponent implements OnInit {
           );
         });
 
-        // Prepare data for export
         const dataToExport = this.formatDataForExport(filteredData);
 
         if (format === 'csv') {
@@ -634,13 +610,11 @@ export class InventoryComponent implements OnInit {
             { header: 'Employee', key: 'employee', width: 20 },
           ];
 
-          // Add data rows including the age for each phone
           const dataWithAge = dataToExport.map((phone) => ({
             ...phone,
             date: phone.date ? this.formatDateForExport(phone.date) : 'N/A',
-            age: phone.date ? this.calculateAge(phone.date) : 'N/A', // Calculate the age here
+            age: phone.date ? this.calculateAge(phone.date) : 'N/A',
           }));
-          // Add data rows
           ws.addRows(dataWithAge);
 
           wb.xlsx.writeBuffer().then((buffer) => {
@@ -678,12 +652,11 @@ export class InventoryComponent implements OnInit {
       distributor: phone.distributor ?? '',
       retailer: phone.retailer ?? '',
       date: phone.date ? this.formatDateForExport(phone.date) : 'N/A',
-      age: phone.date ? this.calculateAge(phone.date) : 'N/A', // Use 'N/A' if date is undefined
-      employee: phone.employee?.username ?? 'N/A', // Safe navigation with nullish coalescing
+      age: phone.date ? this.calculateAge(phone.date) : 'N/A',
+      employee: phone.employee?.username ?? 'N/A',
     }));
   }
 
-  // Helper function to format the date for export
   formatDateForExport(dateString: string): string {
     const date = new Date(dateString);
     const year = date.getFullYear();
@@ -705,54 +678,3 @@ export class InventoryComponent implements OnInit {
     this.selectedEmployee = undefined;
   }
 }
-
-// MEETING NOTES
-
-// Inventory needs an input to load in an excel to batch upload phones to inventory -> DONE!!!!!
-// Batch upload from excel for assigning inventory as well -> DONE!!!!!
-
-// also want functionality to export excel sheet from inventory,
-// or by specific parameters like everything for a specific employee, etc -> DONE!!!!!
-
-// Inventory needs a reporting tab -> (reference their website under Inventory report, used DNAA master agent as an example)
-// Used means units sold (will go through requirements for Sales flow later):
-// Free is how many you have in inventory
-// Removed is defective, manually took out
-// clicking on one of those should generate the report of that data
-
-// add in column or data point for age of phone while in inventory (Date now minus date created) -> DONE!!!!!
-
-// PERMISIONS RULES: DO THIS FIRST!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -> DONE!!!!!
-
-// 1 - ADMIN - MASTER AGENT
-// 2 - Distributor
-// 3 - Retailer
-// 4 - Employee
-// 1 transfer anywhere
-// 2 transfer to 3 & 4
-// 3 transfer to 4
-// 4 cant use system
-// NO ONE can see anything else
-
-
-
-// SECOND MEETING NOTES:
-
-// IMEI FOR REASSIGN NEEDS TO BE A LARGE INPUT BOX IN ORDER TO SCAN IN NUMBERS FROM PHYSCIAL PHONE BOXES (20 PHONE BOXES PER ORDER BOX) -> DONE!!!!!
-// REFERENCE THEIR CURRENT SITE -> THERE'S A TEXT PROMPT THAT SAYS HOW MANY IMEI's ARE IN THE TEXT BOX READY TO ASSIGN -> DONE!!!!!
-// SHOULD THROW ERROR IF THE SYTEM TRIES TO ASSIGN INVENTORY BUT THE IMEIs AREN'T IN INVENTORY -> DONE!!!!!
-// CREATE COLUMNS THAT SHOW HOW MANY SUCCESFUL/UNSUCCESSFUL REASSIGNS HAPPENED -> REFERENCE THEIR CURRENT SITE -> DONE!!!!!
-
-// BREAK APART INVENTORY COMPONENT INTO UPLOAD, REASSIGN, REPORTS -> CALL IT WAREHOUSE WITH 3 TABS FOR EACH OF THOSE -> DONE!!!!!
-
-// REMOVE TYPE AND MODEL FROM EXCEL EXPORT -> DONE!!!!!
-
-// UPDATE PERMISSIONS, UI COMPONENTS SHOULD ONLY BE VISIBLE AT THE LEVEL OF PERMISSIONS INCLUDING ->
-// CURRENT LOGGED IN USER SHOULD ONLY SEE THEIR RECORDS FOR ORDERS, INVENTORY, AND AGENCIES -> DONE!!!!!
-// ONLY MASTER AGENT SHOULD BE ABLE TO SEE EVERYTHING -> DONE!!!!!
-
-// NEED AN AREA TO TAKE OUT INVENTORY FROM TOTAL WAREHOUSE BY BATCH -> PROBABLY SET THIS UP THE SAME AS ASSIGN WHERE THEY CAN -> DONE!!!!!
-// SCAN BOXES INTO A LARGE TEXT INPUT AND REMOVE ALL INVENTORY BY THAT IMEI LIST -> DONE!!!!!
-
-// SHOULD BE READY TO DEPLOY NEXT MEETING (TUES OR WED) AFTER SIGNING THESE LAST ITEMS OFF
-

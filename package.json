@@ -2,7 +2,7 @@
   "name": "phone-inventory-app",
   "version": "0.0.0",
   "scripts": {
-    "start": "node server.js",
+    "start": "ng serve",
     "build": "ng build",
     "test": "ng test",
     "lint": "ng lint",
