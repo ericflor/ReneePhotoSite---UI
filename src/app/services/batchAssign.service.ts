@@ -3,13 +3,14 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { BatchAssign } from '../models/batchAssign';
 import { BatchAssignCreateRequest } from '../models/batchAssignCreateRequest';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 
 export class BatchAssignService {
-  private apiUrl = 'http://localhost:8080/assign';
+  private apiUrl = `${environment.apiUrl}/assign`;
 
   constructor(private http: HttpClient) { }
 
